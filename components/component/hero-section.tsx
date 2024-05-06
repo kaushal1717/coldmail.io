@@ -71,7 +71,7 @@ export function HeroSection() {
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger>
-                <div className="bg-foreground px-2 py-1 rounded-md flex items-center gap-2">
+                <div className=" px-2 py-1 rounded-md flex items-center gap-2">
                   <Image
                     className="rounded-full"
                     src={data.user?.image || ""}
@@ -79,7 +79,6 @@ export function HeroSection() {
                     width={30}
                     alt="user"
                   />
-                  <ChevronDown className="text-black" size={16} />
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
