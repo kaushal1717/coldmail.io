@@ -3,24 +3,36 @@ import Link from "next/link";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+
 import EmailIllustration from "@/assets/email-illustration.svg";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Calendar, Layers, Share, ShoppingCart, User } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import {
+  Calendar,
+  ChevronDown,
+  Layers,
+  Share,
+  ShoppingCart,
+  User,
+  User2,
+} from "lucide-react";
+
 export function HeroSection() {
+  const { data } = useSession();
   const onGoogleSignIn = () => {
     signIn();
+  };
+  const onGoogleSignOut = () => {
+    signOut();
   };
   return (
     <div className="flex flex-col min-h-[100dvh]">
@@ -29,7 +41,7 @@ export function HeroSection() {
           <MailboxIcon className="h-6 w-6" />
           <span className="sr-only">Cold Email Generator</span>
         </Link>
-        <nav className="ml-auto flex gap-4 sm:gap-6">
+        <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
           <Link
             className="text-sm font-medium hover:underline underline-offset-4"
             href="#"
@@ -48,12 +60,38 @@ export function HeroSection() {
           >
             Pricing
           </Link>
-          <Link
-            className="text-sm font-medium hover:underline underline-offset-4"
-            href="#"
-          >
-            About
-          </Link>
+          {!data ? (
+            <Button
+              className="flex items-center gap-2"
+              onClick={onGoogleSignIn}
+            >
+              <User2 size={16} />
+              Login
+            </Button>
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <div className=" px-2 py-1 rounded-md flex items-center gap-2">
+                  <Image
+                    className="rounded-full"
+                    src={data.user?.image || ""}
+                    height={30}
+                    width={30}
+                    alt="user"
+                  />
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem>Billing</DropdownMenuItem>
+                <DropdownMenuItem onClick={onGoogleSignOut}>
+                  logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </nav>
       </header>
       <main className="flex-1">
