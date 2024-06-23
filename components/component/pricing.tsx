@@ -1,6 +1,11 @@
+"use client";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function Pricing() {
+  const onHandlePayment = () => {
+    <Link href="https://buy.stripe.com/test_9AQ5mc6rc7q75OM5kk"></Link>;
+  };
   return (
     <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800">
       <div className="container max-w-6xl px-4 md:px-6">
@@ -14,6 +19,7 @@ export default function Pricing() {
           <Button
             variant="outline"
             className="rounded-3xl mt-5 font-semibold border-gray-500"
+            onClick={onHandlePayment}
           >
             Try the custom and pro plan with our 30-day FREE TRIAL!!
           </Button>
