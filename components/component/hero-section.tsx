@@ -1,99 +1,29 @@
 "use client";
 import Link from "next/link";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 import EmailIllustration from "@/assets/email-illustration.svg";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
-import {
-  Calendar,
-  ChevronDown,
-  Layers,
-  Share,
-  ShoppingCart,
-  User,
-  User2,
-} from "lucide-react";
+import { Calendar, Layers, Share, ShoppingCart, User } from "lucide-react";
+import Header from "./header";
 
 export function HeroSection() {
   const { data } = useSession();
   const onGoogleSignIn = () => {
-    signIn();
+    if (!data) {
+      signIn("google", {
+        callbackUrl: "/pricing",
+      });
+    }
   };
-  const onGoogleSignOut = () => {
-    signOut();
-  };
+
   return (
     <div className="flex flex-col min-h-[100dvh]">
-      <header className="px-4 lg:px-6 h-14 flex items-center">
-        <Link className="flex items-center justify-center" href="#">
-          <MailboxIcon className="h-6 w-6" />
-          <span className="sr-only">Cold Email Generator</span>
-        </Link>
-        <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
-          <Link
-            className="text-sm font-medium hover:underline underline-offset-4"
-            href="#"
-          >
-            Templates
-          </Link>
-          <Link
-            className="text-sm font-medium hover:underline underline-offset-4"
-            href="#"
-          >
-            Marketplace
-          </Link>
-          <Link
-            className="text-sm font-medium hover:underline underline-offset-4"
-            href="/pricing"
-          >
-            Pricing
-          </Link>
-          {!data ? (
-            <Button
-              className="flex items-center gap-2"
-              onClick={onGoogleSignIn}
-            >
-              <User2 size={16} />
-              Login
-            </Button>
-          ) : (
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <div className=" px-2 py-1 rounded-md flex items-center gap-2">
-                  <Image
-                    className="rounded-full"
-                    src={data.user?.image || ""}
-                    height={30}
-                    width={30}
-                    alt="user"
-                  />
-                </div>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Profile</DropdownMenuItem>
-                <DropdownMenuItem>Billing</DropdownMenuItem>
-                <DropdownMenuItem onClick={onGoogleSignOut}>
-                  logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </nav>
-      </header>
+      <Header />
       <main className="flex-1">
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
           <div className="container px-4 md:px-6">
@@ -109,13 +39,9 @@ export function HeroSection() {
                 </p>
               </div>
               <div className="space-x-4">
-                <Button onClick={onGoogleSignIn}>Get Started</Button>
-                <Link
-                  className="inline-flex h-9 items-center justify-center rounded-md border border-gray-200 border-gray-200 bg-white px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-800 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus-visible:ring-gray-300"
-                  href="#"
-                >
-                  Explore Marketplace
-                </Link>
+                <Button onClick={onGoogleSignIn} className="text-lg">
+                  Get Started
+                </Button>
               </div>
             </div>
           </div>
