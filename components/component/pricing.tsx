@@ -48,7 +48,7 @@ export default function Pricing() {
                 Basic features
               </li>
             </ul>
-            <Button className="w-full">Get Started</Button>
+            <Button className="w-full mt-8">Get Started</Button>
           </div>
           <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-lg dark:border-gray-800 dark:bg-gray-950">
             <div className="mb-6 space-y-2">
