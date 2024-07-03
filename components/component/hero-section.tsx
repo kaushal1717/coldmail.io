@@ -25,7 +25,7 @@ export function HeroSection() {
   const { data } = useSession();
   const onGoogleSignIn = () => {
     signIn("google", {
-      callbackUrl: "/pricing",
+      callbackUrl: "/templates",
     });
   };
 
@@ -50,7 +50,7 @@ export function HeroSection() {
                 <div className="space-x-4">
                   <Button
                     className="text-lg"
-                    onClick={() => router.push("/pricing")}
+                    onClick={() => router.push("/templates")}
                   >
                     Get Started
                   </Button>
@@ -85,7 +85,7 @@ export function HeroSection() {
             </div>
           </div>
         </section>
-        <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800">
+        <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-800 bg-opacity-50 shadow-gray-700">
           <div className="container px-4 md:px-6">
             <div className="grid items-center gap-6 lg:grid-cols-[1fr_500px] lg:gap-12 xl:grid-cols-[1fr_550px]">
               <Image
