@@ -17,9 +17,7 @@ import {
 const Header = () => {
   const { data } = useSession();
   const onGoogleSignIn = () => {
-    signIn("google", {
-      callbackUrl: "/pricing",
-    });
+    signIn("google", { callbackUrl: "/pricing" });
   };
   const onGoogleSignOut = () => {
     signOut();
