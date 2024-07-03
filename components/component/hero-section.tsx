@@ -3,22 +3,29 @@ import Link from "next/link";
 import { signIn, useSession } from "next-auth/react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
 import EmailIllustration from "@/assets/email-illustration.svg";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 import { Calendar, Layers, Share, ShoppingCart, User } from "lucide-react";
+import { useRouter } from "next/navigation";
 import Header from "./header";
 
 export function HeroSection() {
+  const router = useRouter();
   const { data } = useSession();
   const onGoogleSignIn = () => {
-    if (!data) {
-      signIn("google", {
-        callbackUrl: "/pricing",
-      });
-    }
+    signIn("google", {
+      callbackUrl: "/pricing",
+    });
   };
 
   return (
@@ -38,11 +45,42 @@ export function HeroSection() {
                   in our marketplace.
                 </p>
               </div>
-              <div className="space-x-4">
-                <Button onClick={onGoogleSignIn} className="text-lg">
-                  Get Started
-                </Button>
-              </div>
+              {data && (
+                <div className="space-x-4">
+                  <Button
+                    className="text-lg"
+                    onClick={() => router.push("/pricing")}
+                  >
+                    Get Started
+                  </Button>
+                </div>
+              )}
+              {!data && (
+                <Dialog>
+                  <DialogTrigger className="bg-white text-black px-3 py-2 text-lg font-sans font-semibold rounded-lg">
+                    Get Started
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Login</DialogTitle>
+                      <DialogDescription>
+                        <Button
+                          className="w-full mt-2 font-semibold text-lg gap-2"
+                          onClick={onGoogleSignIn}
+                        >
+                          <Image
+                            src="/google.png"
+                            width="20"
+                            height="20"
+                            alt="google-logo"
+                          />
+                          Google
+                        </Button>
+                      </DialogDescription>
+                    </DialogHeader>
+                  </DialogContent>
+                </Dialog>
+              )}
             </div>
           </div>
         </section>
