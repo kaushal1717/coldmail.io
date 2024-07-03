@@ -1,5 +1,5 @@
 "use client";
-import { MailboxIcon, User2 } from "lucide-react";
+import { LogOutIcon, MailboxIcon, User2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "../ui/button";
 
@@ -32,7 +32,7 @@ const Header = () => {
         <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
           <Link
             className="text-sm font-medium hover:underline underline-offset-4"
-            href="#"
+            href="/templates"
           >
             Templates
           </Link>
@@ -69,7 +69,10 @@ const Header = () => {
                 <DropdownMenuItem>Profile</DropdownMenuItem>
                 <DropdownMenuItem>Billing</DropdownMenuItem>
                 <DropdownMenuItem onClick={onGoogleSignOut}>
-                  logout
+                  Logout{" "}
+                  <span className="ml-3">
+                    <LogOutIcon />
+                  </span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
