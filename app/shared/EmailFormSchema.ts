@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const emailFormSchema = z.object({
-  emailPurspose: z.enum([
+  emailPurpose: z.enum([
     "Follow up",
     "Job Applications",
     "To CEO/founder",
