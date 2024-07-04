@@ -9,7 +9,7 @@ export const emailFormSchema = z.object({
     "Product Promotion",
   ]),
   subject: z.string().min(1, "Subject is required"),
-  emailTone: z.enum(["Shorter", "Longer", "Simpler", "Casual", "Professional"]),
+  emailTone: z.enum(["Shorter", "Longer", "Simple", "Casual", "Professional"]),
   socialLinks: z
     .array(
       z.object({

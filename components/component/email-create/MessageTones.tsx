@@ -9,7 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { emailFormType } from "@/app/shared/EmailFormSchema";
 
 function MessageTonesSection() {
-  const emailTones = ["Shorter", "Longer", "Professional", "Casual", "Simple"];
+  const emailTones = ["Simple", "Shorter", "Longer", "Professional", "Casual"];
   const {
     register,
     watch,

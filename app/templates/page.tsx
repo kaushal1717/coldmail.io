@@ -46,7 +46,7 @@ export default function Component() {
               </DropdownMenuContent>
             </DropdownMenu>
             <Link
-              href="#"
+              href="/templates/new"
               className="bg-primary text-primary-foreground rounded-full p-3 shadow-md hover:bg-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transition-colors"
               prefetch={false}
             >

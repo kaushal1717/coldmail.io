@@ -17,10 +17,10 @@ import {
 const Header = () => {
   const { data } = useSession();
   const onGoogleSignIn = () => {
-    signIn("google", { callbackUrl: "/pricing" });
+    signIn("google", { callbackUrl: "/templates" });
   };
   const onGoogleSignOut = () => {
-    signOut();
+    signOut({ callbackUrl: "/", redirect: true });
   };
   return (
     <div>
