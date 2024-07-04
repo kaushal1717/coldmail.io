@@ -18,13 +18,14 @@ import {
 import { Calendar, Layers, Share, ShoppingCart, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Header from "./header";
+import Footer from "./footer";
 
 export function HeroSection() {
   const router = useRouter();
   const { data } = useSession();
   const onGoogleSignIn = () => {
     signIn("google", {
-      callbackUrl: "/pricing",
+      callbackUrl: "/templates",
     });
   };
 
@@ -49,7 +50,7 @@ export function HeroSection() {
                 <div className="space-x-4">
                   <Button
                     className="text-lg"
-                    onClick={() => router.push("/pricing")}
+                    onClick={() => router.push("/templates")}
                   >
                     Get Started
                   </Button>
@@ -84,7 +85,7 @@ export function HeroSection() {
             </div>
           </div>
         </section>
-        <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800">
+        <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-800 bg-opacity-50 shadow-gray-700">
           <div className="container px-4 md:px-6">
             <div className="grid items-center gap-6 lg:grid-cols-[1fr_500px] lg:gap-12 xl:grid-cols-[1fr_550px]">
               <Image
@@ -209,7 +210,8 @@ export function HeroSection() {
             </Card>
           </div>
         </section>
-        <section className="w-full py-12 md:py-24 lg:py-32 border-t">
+        <Footer />
+        {/* <section className="w-full py-12 md:py-24 lg:py-32 border-t">
           <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6">
             <div className="space-y-3">
               <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
@@ -237,9 +239,9 @@ export function HeroSection() {
               </p>
             </div>
           </div>
-        </section>
+        </section> */}
       </main>
-      <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
+      {/* <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
         <p className="text-xs text-gray-500 dark:text-gray-400">
           © 2024 Cold Email Generator. All rights reserved.
         </p>
@@ -251,7 +253,7 @@ export function HeroSection() {
             Privacy
           </Link>
         </nav>
-      </footer>
+      </footer> */}
     </div>
   );
 }
