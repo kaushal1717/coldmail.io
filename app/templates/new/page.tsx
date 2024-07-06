@@ -35,6 +35,7 @@ import { json } from "stream/consumers";
 
 // Zod schema definition for form validation
 const emailFormSchema = z.object({
+  senderName: z.string().min(1, "Enter your name/company name"),
   emailPurpose: z.enum([
     "follow-up",
     "job-application",
@@ -43,7 +44,7 @@ const emailFormSchema = z.object({
     "product-promotion",
   ]),
   subject: z.string().min(1, "Subject is required"),
-  messageTone: z.enum([
+  emailTone: z.enum([
     "formal",
     "informal",
     "enthusiastic",
@@ -58,9 +59,10 @@ const emailFormSchema = z.object({
       })
     )
     .max(4, "You can add up to 4 social links"),
+  skills: z.string().min(1, "Skills/USP is required"),
 });
 
-type emailFormType = z.infer<typeof emailFormSchema>;
+export type emailFormType = z.infer<typeof emailFormSchema>;
 
 const Page: React.FC = () => {
   const [responseMessage, setResponseMessage] = useState("");
@@ -117,6 +119,19 @@ const Page: React.FC = () => {
         <Card className="p-6 space-y-6">
           <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(onSubmit)}>
+              {/* sender name */}
+              <div className="space-y-2">
+                <Label htmlFor="subject">Your name</Label>
+                <Input
+                  placeholder="Enter your name"
+                  {...methods.register("senderName")}
+                />
+                {methods.formState.errors.senderName && (
+                  <span className="text-red-500">
+                    {methods.formState.errors.senderName.message}
+                  </span>
+                )}
+              </div>
               {/* Email Purpose Field */}
               <FormField
                 control={methods.control}
@@ -164,11 +179,27 @@ const Page: React.FC = () => {
                 )}
               </div>
 
+              {/* usp/skills */}
+              <div className="space-y-2">
+                <Label htmlFor="subject">
+                  USP of product / Skills of applicant
+                </Label>
+                <Input
+                  placeholder="Enter skills/USP"
+                  {...methods.register("skills")}
+                />
+                {methods.formState.errors.skills && (
+                  <span className="text-red-500">
+                    {methods.formState.errors.skills.message}
+                  </span>
+                )}
+              </div>
+
               {/* Message Tone Field */}
               <div className="space-y-2">
                 <FormLabel>Message Tone</FormLabel>
                 <RadioGroup
-                  onValueChange={methods.setValue.bind(null, "messageTone")}
+                  onValueChange={methods.setValue.bind(null, "emailTone")}
                 >
                   <div className="space-y-1">
                     <RadioGroupItem value="formal" />
@@ -191,9 +222,9 @@ const Page: React.FC = () => {
                     <Label>Friendly</Label>
                   </div>
                 </RadioGroup>
-                {methods.formState.errors.messageTone && (
+                {methods.formState.errors.emailTone && (
                   <span className="text-red-500">
-                    {methods.formState.errors.messageTone.message}
+                    {methods.formState.errors.emailTone.message}
                   </span>
                 )}
               </div>
