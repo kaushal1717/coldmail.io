@@ -9,7 +9,8 @@ export default function TemplateCreateLayout({
   return (
     <div className="relative">
       <Header />
-      <div>{children}</div>
+      <div className="min-h-[calc(100vh-10px)]">{children}</div>
+      <Terms />
     </div>
   );
 }

@@ -9,7 +9,7 @@ export default function ProfileLayout({
   return (
     <div className="relative">
       <Header />
-      <div className="h-[calc(100vh-10px)]">{children}</div>
+      <div className="min-h-[calc(100vh-10px)]">{children}</div>
       <Terms />
     </div>
   );
