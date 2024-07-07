@@ -5,6 +5,7 @@ import { Button } from "../ui/button";
 
 import Image from "next/image";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +17,7 @@ import {
 
 const Header = () => {
   const { data } = useSession();
+  const router = useRouter();
   const onGoogleSignIn = () => {
     signIn("google", { callbackUrl: "/templates" });
   };
@@ -66,7 +68,9 @@ const Header = () => {
               <DropdownMenuContent className="mr-3">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/profile")}>
+                  Profile
+                </DropdownMenuItem>
                 <DropdownMenuItem>Billing</DropdownMenuItem>
                 <DropdownMenuItem onClick={onGoogleSignOut}>
                   Logout{" "}

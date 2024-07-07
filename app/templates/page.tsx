@@ -24,7 +24,6 @@ import Footer from "@/components/component/footer";
 export default function Component() {
   return (
     <>
-      <Header />
       <div className="w-full max-w-6xl mx-auto mt-6 px-4 py-8 sm:px-6 lg:px-8 border-gray-700 border-2 rounded-md bg-gray-800 bg-opacity-50 shadow-gray-700 shadow-md">
         <div className="w-full max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-6">

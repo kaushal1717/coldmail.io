@@ -1,7 +1,7 @@
 import Header from "@/components/component/header";
 import Terms from "@/components/component/terms";
 
-export default function ProfileLayout({
+export default function TemplateCreateLayout({
   children,
 }: {
   children: React.ReactNode;

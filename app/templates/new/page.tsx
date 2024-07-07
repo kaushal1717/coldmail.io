@@ -24,14 +24,12 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import Link from "next/link";
-import { json } from "stream/consumers";
+import { useToast } from "@/components/ui/use-toast";
 
 // Zod schema definition for form validation
 const emailFormSchema = z.object({
@@ -66,7 +64,7 @@ export type emailFormType = z.infer<typeof emailFormSchema>;
 
 const Page: React.FC = () => {
   const [responseMessage, setResponseMessage] = useState("");
-
+  const { toast } = useToast();
   const methods = useForm<emailFormType>({
     resolver: zodResolver(emailFormSchema),
     defaultValues: {
@@ -109,6 +107,13 @@ const Page: React.FC = () => {
     }
   };
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(responseMessage);
+    toast({
+      title: "Mail copied!!",
+      description: "your email has been copied to clipboard",
+    });
+  };
   return (
     <>
       <h2 className="flex justify-center items-center text-3xl font-bold tracking-wide">
@@ -300,7 +305,9 @@ const Page: React.FC = () => {
           />
           <div className="flex justify-between">
             <div className="flex gap-2">
-              <Button variant="outline">Copy</Button>
+              <Button variant="outline" onClick={handleCopy}>
+                Copy
+              </Button>
               <Button variant="outline">Save</Button>
             </div>
             <Button>Send</Button>
