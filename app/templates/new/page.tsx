@@ -301,7 +301,6 @@ const Page: React.FC = () => {
             className="h-[500px] resize-none"
             placeholder="Your generated email will appear here..."
             value={responseMessage}
-            readOnly
           />
           <div className="flex justify-between">
             <div className="flex gap-2">
