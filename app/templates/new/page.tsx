@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import React, { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, PlusCircle, Trash2, X } from "lucide-react";
 import {
   FormProvider,
   SubmitHandler,
@@ -30,6 +30,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 // Zod schema definition for form validation
 const emailFormSchema = z.object({
@@ -64,6 +73,9 @@ export type emailFormType = z.infer<typeof emailFormSchema>;
 
 const Page: React.FC = () => {
   const [responseMessage, setResponseMessage] = useState("");
+  const [email, setEmail] = useState<string>("");
+  const [recipientEmail, setRecipientEmail] = useState<string[]>([]);
+  const [subject, setSubject] = useState<string>("");
   const { toast } = useToast();
   const methods = useForm<emailFormType>({
     resolver: zodResolver(emailFormSchema),
@@ -96,6 +108,7 @@ const Page: React.FC = () => {
 
       if (content) {
         setResponseMessage(content);
+        setSubject(data.subject);
       } else {
         setResponseMessage(
           "Either API key is expired or any internal error occurred"
@@ -114,6 +127,37 @@ const Page: React.FC = () => {
       description: "your email has been copied to clipboard",
     });
   };
+
+  const addRecipient = () => {
+    if (email.length == 0) {
+      toast({
+        title: "Email field is empty",
+        description: "please enter recipient email",
+      });
+      return;
+    }
+    if (recipientEmail.find((mail) => mail === email)) {
+      toast({
+        title: "Enter a new email",
+        description: "email already exists in the list!",
+      });
+      return;
+    }
+    setRecipientEmail((prev: string[]) => [...prev, email]);
+    setEmail("");
+  };
+
+  const removeRecipient = (mail: string) => {
+    setRecipientEmail(recipientEmail.filter((email) => email !== mail));
+  };
+
+  const openClientWithEmail = () => {
+    console.log(responseMessage);
+    window.location.href = `mailto:${recipientEmail.join(
+      ","
+    )}?subject=${subject}&body=${encodeURIComponent(responseMessage)}`;
+  };
+
   return (
     <>
       <h2 className="flex justify-center items-center text-3xl font-bold tracking-wide">
@@ -309,7 +353,52 @@ const Page: React.FC = () => {
               </Button>
               <Button variant="outline">Save</Button>
             </div>
-            <Button>Send</Button>
+            <Dialog>
+              <DialogTrigger className="bg-white text-black px-3 py-2  font-sans font-semibold rounded-lg">
+                Send
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add Emails</DialogTitle>
+                  <DialogDescription>
+                    <div className="flex mt-2 items-center gap-2">
+                      <Input
+                        placeholder="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                      <PlusCircle
+                        size={30}
+                        color="white"
+                        className="cursor-pointer"
+                        onClick={addRecipient}
+                      />
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {recipientEmail.length > 0 &&
+                        recipientEmail.map((email: string) => {
+                          return (
+                            <div key={email}>
+                              <div className="bg-slate-300 px-2 py-1 text-sm flex items-center justify-between gap-2 text-black rounded-lg">
+                                {email}
+                                <X
+                                  size={16}
+                                  onClick={() => removeRecipient(email)}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                    {recipientEmail.length > 0 && (
+                      <div className="mt-3 w-full">
+                        <Button onClick={openClientWithEmail}>send</Button>
+                      </div>
+                    )}
+                  </DialogDescription>
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>
