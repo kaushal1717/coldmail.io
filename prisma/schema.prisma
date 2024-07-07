@@ -18,11 +18,13 @@ model User {
   email String @unique
   image String?
   emails Email[]
+  totalEmails Int @default(0)
+  subscription String @default("basic")
 }
 
 model Email {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
   author   User   @relation(fields: [authorId], references: [id])
   authorId String @db.ObjectId
-  public   Boolean  @default(false)
+  category String 
 }
