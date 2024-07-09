@@ -20,6 +20,7 @@ import Link from "next/link";
 import Header from "@/components/component/header";
 import { EyeIcon, TrashIcon } from "lucide-react";
 import Footer from "@/components/component/footer";
+import Terms from "@/components/component/terms";
 
 export default function Component() {
   return (
@@ -191,7 +192,6 @@ export default function Component() {
           </PaginationContent>
         </Pagination>
       </div>
-      <Footer />
     </>
   );
 }
