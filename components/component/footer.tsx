@@ -27,12 +27,6 @@ const Footer = () => {
                 />
                 <Button type="submit">Get Started</Button>
               </form>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Sign up to start creating email templates.
-                <Link className="underline underline-offset-2" href="#">
-                  Terms & Conditions
-                </Link>
-              </p>
             </div>
           </div>
         </section>

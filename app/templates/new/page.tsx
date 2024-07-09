@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import React, { useState } from "react";
-import { Plus, PlusCircle, Trash2, X } from "lucide-react";
+import { Plus, PlusCircle, SendIcon, Trash2, X } from "lucide-react";
 import {
   FormProvider,
   SubmitHandler,
@@ -42,7 +42,7 @@ import {
 
 // Zod schema definition for form validation
 const emailFormSchema = z.object({
-  senderName: z.string().min(1, "Enter your name/company name"),
+  senderName: z.string().min(1, "This field is required"),
   emailPurpose: z.enum([
     "follow-up",
     "job-application",
@@ -50,7 +50,7 @@ const emailFormSchema = z.object({
     "referrals",
     "product-promotion",
   ]),
-  subject: z.string().min(1, "Subject is required"),
+  subject: z.string().min(1, "This field is required"),
   emailTone: z.enum([
     "formal",
     "informal",
@@ -61,7 +61,7 @@ const emailFormSchema = z.object({
   socialLinks: z
     .array(
       z.object({
-        platform: z.string().min(1, "Platform is required"),
+        platform: z.string().min(1, "This field is required"),
         link: z.string().url("Invalid URL"),
       })
     )
@@ -124,22 +124,24 @@ const Page: React.FC = () => {
     navigator.clipboard.writeText(responseMessage);
     toast({
       title: "Mail copied!!",
-      description: "your email has been copied to clipboard",
+      description: "Your email has been copied to clipboard",
     });
   };
+
+  const handleSave = () => {};
 
   const addRecipient = () => {
     if (email.length == 0) {
       toast({
         title: "Email field is empty",
-        description: "please enter recipient email",
+        description: "Please enter recipient email",
       });
       return;
     }
     if (recipientEmail.find((mail) => mail === email)) {
       toast({
         title: "Enter a new email",
-        description: "email already exists in the list!",
+        description: "Email already exists in the list!",
       });
       return;
     }
@@ -165,12 +167,14 @@ const Page: React.FC = () => {
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
-        <Card className="p-6 space-y-6">
+        <Card className="p-6 space-y-6 my-4">
           <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(onSubmit)}>
               {/* sender name */}
-              <div className="space-y-2">
-                <Label htmlFor="subject">Your name</Label>
+              <div className="space-y-2 my-4">
+                <Label className="text-lg" htmlFor="subject">
+                  Individual / Organization Name
+                </Label>
                 <Input
                   placeholder="Enter your name"
                   {...methods.register("senderName")}
@@ -182,41 +186,45 @@ const Page: React.FC = () => {
                 )}
               </div>
               {/* Email Purpose Field */}
-              <FormField
-                control={methods.control}
-                name="emailPurpose"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email Purpose</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select email purpose" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="follow-up">Follow Up</SelectItem>
-                        <SelectItem value="job-application">
-                          Job Application
-                        </SelectItem>
-                        <SelectItem value="to-ceo">To CEO</SelectItem>
-                        <SelectItem value="referrals">Referral</SelectItem>
-                        <SelectItem value="product-promotion">
-                          Product Promotion
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="my-4">
+                <FormField
+                  control={methods.control}
+                  name="emailPurpose"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-lg">Email Purpose</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select email purpose" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="follow-up">Follow Up</SelectItem>
+                          <SelectItem value="job-application">
+                            Job Application
+                          </SelectItem>
+                          <SelectItem value="to-ceo">To CEO</SelectItem>
+                          <SelectItem value="referrals">Referral</SelectItem>
+                          <SelectItem value="product-promotion">
+                            Product Promotion
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               {/* Subject Field */}
-              <div className="space-y-2">
-                <Label htmlFor="subject">Subject</Label>
+              <div className="space-y-2 my-4">
+                <Label className="text-lg" htmlFor="subject">
+                  Subject
+                </Label>
                 <Input
                   placeholder="Enter subject"
                   {...methods.register("subject")}
@@ -229,9 +237,9 @@ const Page: React.FC = () => {
               </div>
 
               {/* usp/skills */}
-              <div className="space-y-2">
-                <Label htmlFor="subject">
-                  USP of product / Skills of applicant
+              <div className="space-y-2 my-4">
+                <Label className="text-lg" htmlFor="subject">
+                  Individual Skills / Product Features
                 </Label>
                 <Input
                   placeholder="Enter skills/USP"
@@ -244,31 +252,32 @@ const Page: React.FC = () => {
                 )}
               </div>
 
-              {/* Message Tone Field */}
-              <div className="space-y-2">
-                <FormLabel>Message Tone</FormLabel>
+              {/* Email Tone Field */}
+              <div className="space-y-2 my-4">
+                <FormLabel className="text-lg">Email Tone</FormLabel>
                 <RadioGroup
                   onValueChange={methods.setValue.bind(null, "emailTone")}
+                  className="mx-4"
                 >
                   <div className="space-y-1">
                     <RadioGroupItem value="formal" />
-                    <Label>Formal</Label>
+                    <Label className="ml-2">Formal</Label>
                   </div>
                   <div className="space-y-1">
                     <RadioGroupItem value="informal" />
-                    <Label>Informal</Label>
+                    <Label className="ml-2">Informal</Label>
                   </div>
                   <div className="space-y-1">
                     <RadioGroupItem value="enthusiastic" />
-                    <Label>Enthusiastic</Label>
+                    <Label className="ml-2">Enthusiastic</Label>
                   </div>
                   <div className="space-y-1">
                     <RadioGroupItem value="concise" />
-                    <Label>Concise</Label>
+                    <Label className="ml-2">Concise</Label>
                   </div>
                   <div className="space-y-1">
                     <RadioGroupItem value="friendly" />
-                    <Label>Friendly</Label>
+                    <Label className="ml-2">Friendly</Label>
                   </div>
                 </RadioGroup>
                 {methods.formState.errors.emailTone && (
@@ -279,31 +288,29 @@ const Page: React.FC = () => {
               </div>
 
               {/* Social Links Section */}
-              <div className="space-y-2">
-                <Label>Social Links</Label>
+              <div className="space-y-2 my-4">
+                <Label className="text-lg">Social Links</Label>
                 <div className="grid gap-4">
                   {fields.map((field, index) => (
                     <div
                       key={field.id}
-                      className="grid grid-cols-[1fr_1fr_auto] gap-2"
+                      className="grid grid-cols-[1fr_1fr_auto_auto] gap-2"
                     >
-                      <input
+                      <Input
                         placeholder="Platform"
                         {...methods.register(`socialLinks.${index}.platform`)}
-                        className="border border-secondary rounded"
                       />
-                      <input
+                      <Input
                         placeholder="Link"
                         {...methods.register(`socialLinks.${index}.link`)}
-                        className="border border-secondary rounded"
                       />
-                      <button
+                      <Button
+                        variant="outline"
                         type="button"
                         onClick={() => remove(index)}
-                        className="border border-gray-300 rounded p-1"
                       >
                         <Trash2 className="h-5 w-5 text-red-500" />
-                      </button>
+                      </Button>
                       {methods.formState.errors.socialLinks?.[index]
                         ?.platform && (
                         <span className="text-red-500">
@@ -323,8 +330,10 @@ const Page: React.FC = () => {
                       )}
                     </div>
                   ))}
+
                   {fields.length < 4 && (
                     <Button
+                      variant="outline"
                       type="button"
                       onClick={() => append({ platform: "", link: "" })}
                     >
@@ -335,14 +344,16 @@ const Page: React.FC = () => {
               </div>
 
               <div className="flex justify-end">
-                <Button type="submit">Generate</Button>
+                <Button type="submit" className="text-md bg-gray-300">
+                  Generate
+                </Button>
               </div>
             </form>
           </FormProvider>
         </Card>
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
           <Textarea
-            className="h-[500px] resize-none"
+            className="h-[750px] resize-none my-4 rounded-lg"
             placeholder="Your generated email will appear here..."
             value={responseMessage}
           />
@@ -354,8 +365,8 @@ const Page: React.FC = () => {
               <Button variant="outline">Save</Button>
             </div>
             <Dialog>
-              <DialogTrigger className="bg-white text-black px-3 py-2  font-sans font-semibold rounded-lg">
-                Send
+              <DialogTrigger className="flex flex-row bg-white text-black px-3 py-2  font-sans font-semibold rounded-lg">
+                Send <SendIcon />
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
