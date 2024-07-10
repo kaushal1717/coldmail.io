@@ -40,6 +40,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
+import { prisma } from "@/util/db";
+import { useSession } from "next-auth/react";
+import { handleSave } from "@/actions/actions";
+
 // Zod schema definition for form validation
 const emailFormSchema = z.object({
   senderName: z.string().min(1, "This field is required"),
@@ -72,10 +76,11 @@ const emailFormSchema = z.object({
 export type emailFormType = z.infer<typeof emailFormSchema>;
 
 const Page: React.FC = () => {
-  const [responseMessage, setResponseMessage] = useState("");
+  const [responseMessage, setResponseMessage] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [recipientEmail, setRecipientEmail] = useState<string[]>([]);
   const [subject, setSubject] = useState<string>("");
+  const [category, setCategory] = useState<string>("");
   const { toast } = useToast();
   const methods = useForm<emailFormType>({
     resolver: zodResolver(emailFormSchema),
@@ -109,6 +114,7 @@ const Page: React.FC = () => {
       if (content) {
         setResponseMessage(content);
         setSubject(data.subject);
+        setCategory(data.emailPurpose);
       } else {
         setResponseMessage(
           "Either API key is expired or any internal error occurred"
@@ -127,8 +133,6 @@ const Page: React.FC = () => {
       description: "Your email has been copied to clipboard",
     });
   };
-
-  const handleSave = () => {};
 
   const addRecipient = () => {
     if (email.length == 0) {
@@ -158,6 +162,11 @@ const Page: React.FC = () => {
     window.location.href = `mailto:${recipientEmail.join(
       ","
     )}?subject=${subject}&body=${encodeURIComponent(responseMessage)}`;
+  };
+
+  const onSave = async () => {
+    const emailData = await handleSave(responseMessage, subject, category);
+    console.log(emailData);
   };
 
   return (
@@ -362,7 +371,9 @@ const Page: React.FC = () => {
               <Button variant="outline" onClick={handleCopy}>
                 Copy
               </Button>
-              <Button variant="outline">Save</Button>
+              <Button variant="outline" onClick={onSave}>
+                Save
+              </Button>
             </div>
             <Dialog>
               <DialogTrigger className="flex flex-row bg-white text-black px-3 py-2  font-sans font-semibold rounded-lg">
