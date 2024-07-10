@@ -35,3 +35,27 @@ export const handleSave = async (
     console.log(error);
   }
 };
+
+export const handleGet = async () => {
+  const session: CustomSession | null = await getServerSession(authOptions);
+  try {
+    const template = await prisma.user.findMany({
+      include: {
+        emails: {
+          select: {
+            id: true,
+            content: true,
+            category: true,
+            subject: true,
+          },
+        },
+      },
+      where: {
+        userId: session?.user?.id!,
+      },
+    });
+    return template;
+  } catch (error) {
+    console.log(error);
+  }
+};
