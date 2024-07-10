@@ -1,3 +1,4 @@
+"use client";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -17,12 +18,26 @@ import {
 } from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import Header from "@/components/component/header";
 import { EyeIcon, TrashIcon } from "lucide-react";
-import Footer from "@/components/component/footer";
-import Terms from "@/components/component/terms";
+import { useEffect, useState } from "react";
+import { handleGet } from "@/actions/actions";
 
 export default function Component() {
+  const [templates, setTemplates] = useState<any>([]);
+  const [emails, setEmails] = useState<any>([]);
+
+  const fetchTemplates = async () => {
+    const emailTemplates = await handleGet();
+    setTemplates(emailTemplates![0]);
+    setEmails(emailTemplates);
+  };
+
+  useEffect(() => {
+    fetchTemplates();
+  }, []);
+
+  console.log(templates);
+
   return (
     <>
       <div className="w-full max-w-6xl mx-auto mt-6 px-4 py-8 sm:px-6 lg:px-8 border-gray-700 border-2 rounded-md bg-gray-800 bg-opacity-50 shadow-gray-700 shadow-md">
@@ -54,118 +69,34 @@ export default function Component() {
               <span className="sr-only">Create new email template</span>
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <div className="bg-background rounded-lg shadow-lg overflow-hidden border-gray-800 border-2">
-              <div className="p-4">
-                <h2 className="text-lg font-semibold mb-2 text-left">
-                  Shipping Update
-                </h2>
-                <p className="text-muted-foreground text-sm line-clamp-5 text-left">
-                  Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-                  Veniam, aspernatur. Neque soluta mollitia sit dolor in atque
-                  rerum nam? A libero velit aliquid mollitia dicta sequi iste
-                  dolor, quis nihil
-                </p>
-                <div className="flex items-center justify-end mt-4 gap-4">
-                  <Link href="#">
-                    <EyeIcon className="w-5 h-5 text-slate-300" />
-                  </Link>
-                  <span className="text-slate-400">|</span>
-                  <Link href="#">
-                    <TrashIcon className="w-5 h-5 text-red-500" />
-                  </Link>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {templates?.emails?.map((template: any) => {
+            return (
+              <div
+                key={template.id}
+                className="bg-background rounded-lg shadow-lg overflow-hidden border-gray-800 border-2"
+              >
+                <div className="p-4">
+                  <h2 className="text-lg font-semibold mb-2 text-left">
+                    {template.subject}
+                  </h2>
+                  <p className="text-muted-foreground text-sm line-clamp-5 text-left">
+                    {template.content}
+                  </p>
+                  <div className="flex items-center justify-end mt-4">
+                    <Button variant="ghost">
+                      <EyeIcon className="w-5 h-5 text-slate-300" />
+                    </Button>
+                    <span className="text-slate-400">|</span>
+                    <Button variant="ghost">
+                      <TrashIcon className="w-5 h-5 text-red-500" />
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="bg-background rounded-lg shadow-lg overflow-hidden border-gray-800 border-2">
-              <div className="p-4">
-                <h2 className="text-lg font-semibold mb-2 text-left">
-                  Shipping Update
-                </h2>
-                <p className="text-muted-foreground text-sm line-clamp-5 text-left">
-                  Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-                  Veniam, aspernatur. Neque soluta mollitia sit dolor in atque
-                  rerum nam? A libero velit aliquid mollitia dicta sequi iste
-                  dolor, quis nihil
-                </p>
-                <div className="flex items-center justify-end mt-4 gap-4">
-                  <Button variant="ghost">
-                    <EyeIcon className="w-5 h-5 text-slate-300" />
-                  </Button>
-                  <span className="text-slate-400">|</span>
-                  <Link href="#">
-                    <TrashIcon className="w-5 h-5 text-red-500" />
-                  </Link>
-                </div>
-              </div>
-            </div>
-            <div className="bg-background rounded-lg shadow-lg overflow-hidden border-gray-800 border-2">
-              <div className="p-4">
-                <h2 className="text-lg font-semibold mb-2 text-left">
-                  Shipping Update
-                </h2>
-                <p className="text-muted-foreground text-sm line-clamp-5 text-left">
-                  Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-                  Veniam, aspernatur. Neque soluta mollitia sit dolor in atque
-                  rerum nam? A libero velit aliquid mollitia dicta sequi iste
-                  dolor, quis nihil
-                </p>
-                <div className="flex items-center justify-end mt-4 gap-4">
-                  <Link href="#">
-                    <EyeIcon className="w-5 h-5 text-slate-300" />
-                  </Link>
-                  <span className="text-slate-400">|</span>
-                  <Link href="#">
-                    <TrashIcon className="w-5 h-5 text-red-500" />
-                  </Link>
-                </div>
-              </div>
-            </div>
-            <div className="bg-background rounded-lg shadow-lg overflow-hidden border-gray-800 border-2">
-              <div className="p-4">
-                <h2 className="text-lg font-semibold mb-2 text-left">
-                  Shipping Update
-                </h2>
-                <p className="text-muted-foreground text-sm line-clamp-5 text-left">
-                  Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-                  Veniam, aspernatur. Neque soluta mollitia sit dolor in atque
-                  rerum nam? A libero velit aliquid mollitia dicta sequi iste
-                  dolor, quis nihil
-                </p>
-                <div className="flex items-center justify-end mt-4 gap-4">
-                  <Link href="#">
-                    <EyeIcon className="w-5 h-5 text-slate-300" />
-                  </Link>
-                  <span className="text-slate-400">|</span>
-                  <Link href="#">
-                    <TrashIcon className="w-5 h-5 text-red-500" />
-                  </Link>
-                </div>
-              </div>
-            </div>
-            <div className="bg-background rounded-lg shadow-lg overflow-hidden border-gray-800 border-2">
-              <div className="p-4">
-                <h2 className="text-lg font-semibold mb-2 text-left">
-                  Shipping Update
-                </h2>
-                <p className="text-muted-foreground text-sm line-clamp-5 text-left">
-                  Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-                  Veniam, aspernatur. Neque soluta mollitia sit dolor in atque
-                  rerum nam? A libero velit aliquid mollitia dicta sequi iste
-                  dolor, quis nihil
-                </p>
-                <div className="flex items-center justify-end mt-4 gap-4">
-                  <Link href="#">
-                    <EyeIcon className="w-5 h-5 text-slate-300" />
-                  </Link>
-                  <span className="text-slate-400">|</span>
-                  <Link href="#">
-                    <TrashIcon className="w-5 h-5 text-red-500" />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
+            );
+          })}
         </div>
       </div>
       <div className="mt-10 mb-10">
