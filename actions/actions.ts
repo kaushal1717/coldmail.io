@@ -59,3 +59,16 @@ export const handleGet = async () => {
     console.log(error);
   }
 };
+
+export const handleDelete = async (emailId: string) => {
+  try {
+    const deletedItem = await prisma.email.delete({
+      where: {
+        id: emailId,
+      },
+    });
+    return deletedItem;
+  } catch (error) {
+    console.log(error);
+  }
+};
