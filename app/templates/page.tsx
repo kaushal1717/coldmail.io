@@ -25,18 +25,45 @@ import { handleGet } from "@/actions/actions";
 export default function Component() {
   const [templates, setTemplates] = useState<any>([]);
   const [emails, setEmails] = useState<any>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const itemsPerPage = 8;
 
   const fetchTemplates = async () => {
     const emailTemplates = await handleGet();
-    setTemplates(emailTemplates![0]);
-    setEmails(emailTemplates);
+    if (emailTemplates) {
+      setTemplates(emailTemplates[0]);
+      setEmails(emailTemplates);
+    }
   };
 
   useEffect(() => {
     fetchTemplates();
   }, []);
 
-  console.log(templates);
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const filteredTemplates =
+    selectedCategory === "All"
+      ? templates.emails || []
+      : templates.emails?.filter(
+          (template: any) => template.category === selectedCategory
+        ) || [];
+
+  const indexOfLastTemplate = currentPage * itemsPerPage;
+  const indexOfFirstTemplate = indexOfLastTemplate - itemsPerPage;
+  const currentTemplates = filteredTemplates.slice(
+    indexOfFirstTemplate,
+    indexOfLastTemplate
+  );
+  const totalPages = Math.ceil(filteredTemplates.length / itemsPerPage);
 
   return (
     <>
@@ -53,11 +80,34 @@ export default function Component() {
               <DropdownMenuContent align="start" className="w-[200px]">
                 <DropdownMenuLabel>Select Category</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Follow-up</DropdownMenuItem>
-                <DropdownMenuItem>Recruiter (Job Application)</DropdownMenuItem>
-                <DropdownMenuItem>CEO/Founder</DropdownMenuItem>
-                <DropdownMenuItem>Product Advertisement</DropdownMenuItem>
-                <DropdownMenuItem>Referral</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleCategoryChange("All")}>
+                  All
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleCategoryChange("follow-up")}
+                >
+                  Follow-up
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleCategoryChange("job-application")}
+                >
+                  Recruiter (Job Application)
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleCategoryChange("to-ceo")}
+                >
+                  CEO/Founder
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleCategoryChange("product-promotion")}
+                >
+                  Product Advertisement
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => handleCategoryChange("referrals")}
+                >
+                  Referral
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <Link
@@ -71,54 +121,65 @@ export default function Component() {
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {templates?.emails?.map((template: any) => {
-            return (
-              <div
-                key={template.id}
-                className="bg-background rounded-lg shadow-lg overflow-hidden border-gray-800 border-2"
-              >
-                <div className="p-4">
-                  <h2 className="text-lg font-semibold mb-2 text-left">
-                    {template.subject}
-                  </h2>
-                  <p className="text-muted-foreground text-sm line-clamp-5 text-left">
-                    {template.content}
-                  </p>
-                  <div className="flex items-center justify-end mt-4">
-                    <Button variant="ghost">
-                      <EyeIcon className="w-5 h-5 text-slate-300" />
-                    </Button>
-                    <span className="text-slate-400">|</span>
-                    <Button variant="ghost">
-                      <TrashIcon className="w-5 h-5 text-red-500" />
-                    </Button>
-                  </div>
+          {currentTemplates?.map((template: any) => (
+            <div
+              key={template.id}
+              className="bg-background rounded-lg shadow-lg overflow-hidden border-gray-800 border-2"
+            >
+              <div className="p-4">
+                <h2 className="text-lg font-semibold mb-2 text-left">
+                  {template.subject}
+                </h2>
+                <p className="text-muted-foreground text-sm line-clamp-5 text-left">
+                  {template.content}
+                </p>
+                <div className="flex items-center justify-end mt-4">
+                  <Button variant="ghost">
+                    <EyeIcon className="w-5 h-5 text-slate-300" />
+                  </Button>
+                  <span className="text-slate-400">|</span>
+                  <Button variant="ghost">
+                    <TrashIcon className="w-5 h-5 text-red-500" />
+                  </Button>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       </div>
       <div className="mt-10 mb-10">
         <Pagination>
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious href="#" />
+              {currentPage > 1 ? (
+                <PaginationPrevious
+                  href="#"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                />
+              ) : (
+                <PaginationPrevious className="text-gray-500 cursor-not-allowed" />
+              )}
             </PaginationItem>
+            {Array.from({ length: totalPages }, (_, index) => (
+              <PaginationItem key={index}>
+                <PaginationLink
+                  href="#"
+                  onClick={() => handlePageChange(index + 1)}
+                  className={currentPage === index + 1 ? "bg-[#1E293B]" : ""}
+                >
+                  {index + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
             <PaginationItem>
-              <PaginationLink href="#">1</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#">2</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#">3</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext href="#" />
+              {currentPage < totalPages ? (
+                <PaginationNext
+                  href="#"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                />
+              ) : (
+                <PaginationNext className="text-gray-500 cursor-not-allowed" />
+              )}
             </PaginationItem>
           </PaginationContent>
         </Pagination>

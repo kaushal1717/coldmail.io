@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import React, { useState } from "react";
-import { Plus, PlusCircle, SendIcon, Trash2, X } from "lucide-react";
+import { Plus, PlusCircle, Trash2, X } from "lucide-react";
 import {
   FormProvider,
   SubmitHandler,
@@ -39,9 +39,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-
-import { prisma } from "@/util/db";
-import { useSession } from "next-auth/react";
 import { handleSave } from "@/actions/actions";
 
 // Zod schema definition for form validation
@@ -166,6 +163,12 @@ const Page: React.FC = () => {
 
   const onSave = async () => {
     const emailData = await handleSave(responseMessage, subject, category);
+    if (emailData) {
+      toast({
+        title: "Saved successfully!!",
+        description: "Your generated email template has been saved!",
+      });
+    }
     console.log(emailData);
   };
 
@@ -377,7 +380,7 @@ const Page: React.FC = () => {
             </div>
             <Dialog>
               <DialogTrigger className="flex flex-row bg-white text-black px-3 py-2  font-sans font-semibold rounded-lg">
-                Send <SendIcon />
+                Send
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
