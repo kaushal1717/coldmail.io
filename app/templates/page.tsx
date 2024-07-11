@@ -20,9 +20,33 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { EyeIcon, TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { handleGet } from "@/actions/actions";
+import { handleDelete, handleGet } from "@/actions/actions";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import Markdown from "react-markdown";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function Component() {
+  const { toast } = useToast();
   const [templates, setTemplates] = useState<any>([]);
   const [emails, setEmails] = useState<any>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -65,6 +89,16 @@ export default function Component() {
   );
   const totalPages = Math.ceil(filteredTemplates.length / itemsPerPage);
 
+  const deleteTemplate = async (emailId: string) => {
+    const deleted = await handleDelete(emailId);
+    if (deleted) {
+      toast({
+        title: "Template Successfully deleted",
+        description: "Your template has been deleted",
+      });
+    }
+    fetchTemplates();
+  };
   return (
     <>
       <div className="w-full max-w-6xl mx-auto mt-6 px-4 py-8 sm:px-6 lg:px-8 border-gray-700 border-2 rounded-md bg-gray-800 bg-opacity-50 shadow-gray-700 shadow-md">
@@ -73,7 +107,7 @@ export default function Component() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="flex items-center gap-2">
-                  <span>Template Categories</span>
+                  <span>{selectedCategory}</span>
                   <ChevronDownIcon className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -134,13 +168,52 @@ export default function Component() {
                   {template.content}
                 </p>
                 <div className="flex items-center justify-end mt-4">
-                  <Button variant="ghost">
-                    <EyeIcon className="w-5 h-5 text-slate-300" />
-                  </Button>
+                  <Dialog>
+                    <DialogTrigger>
+                      <Button variant="ghost">
+                        <EyeIcon className="w-5 h-5 text-slate-300" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>{template.subject}</DialogTitle>
+                      </DialogHeader>
+                      <Textarea
+                        className="h-[500px] resize-none my-4 rounded-lg outline-none focus-visible:ring-transparent  border-none focus:ring-0 scroll "
+                        readOnly={true}
+                      >
+                        {template.content}
+                      </Textarea>
+                    </DialogContent>
+                  </Dialog>
+
                   <span className="text-slate-400">|</span>
-                  <Button variant="ghost">
-                    <TrashIcon className="w-5 h-5 text-red-500" />
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger>
+                      <Button variant="ghost">
+                        <TrashIcon className="w-5 h-5 text-red-500" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Are you absolutely sure?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently
+                          delete your email template.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => deleteTemplate(template.id)}
+                        >
+                          Yes
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </div>
             </div>
