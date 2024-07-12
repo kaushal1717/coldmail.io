@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { EyeIcon, TrashIcon } from "lucide-react";
+import { EyeIcon, Pencil, TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { handleDelete, handleGet } from "@/actions/actions";
 import {
@@ -36,15 +36,12 @@ import { useToast } from "@/components/ui/use-toast";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import Markdown from "react-markdown";
 import { Textarea } from "@/components/ui/textarea";
-
+import { useRouter } from "next/navigation";
 export default function Component() {
   const { toast } = useToast();
   const [templates, setTemplates] = useState<any>([]);
@@ -52,6 +49,7 @@ export default function Component() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const itemsPerPage = 8;
+  const router = useRouter();
 
   const fetchTemplates = async () => {
     const emailTemplates = await handleGet();
@@ -179,11 +177,20 @@ export default function Component() {
                         <DialogTitle>{template.subject}</DialogTitle>
                       </DialogHeader>
                       <Textarea
-                        className="h-[500px] resize-none my-4 rounded-lg outline-none focus-visible:ring-transparent  border-none focus:ring-0 scroll "
+                        className="h-[450px] resize-none my-4 rounded-lg outline-none focus-visible:ring-transparent  border-none focus:ring-0 scroll "
                         readOnly={true}
                       >
                         {template.content}
                       </Textarea>
+                      <Button
+                        className="gap-2 font-semibold"
+                        onClick={() =>
+                          router.push(`/templates/edit/${template.id}`)
+                        }
+                      >
+                        Edit
+                        <Pencil size={16} />
+                      </Button>
                     </DialogContent>
                   </Dialog>
 

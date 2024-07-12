@@ -17,8 +17,9 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useSession } from "next-auth/react";
+
 export function ProfileLayout() {
-  const { data } = useSession();
+  const { data }: any = useSession();
   return (
     <div className="w-full space-y-4  grid grid-cols-1 m-2 md:grid-cols-1 lg:grid-cols-2">
       <Card className="col-span-2 md:flex items-center p-6">

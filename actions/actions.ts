@@ -72,3 +72,39 @@ export const handleDelete = async (emailId: string) => {
     console.log(error);
   }
 };
+
+export const handleGetWithId = async (emailId: string) => {
+  try {
+    const getEmail = await prisma.email.findUnique({
+      where: {
+        id: emailId,
+      },
+    });
+
+    return getEmail;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const editTemplate = async (
+  emailId: string,
+  subject: string,
+  content: string
+) => {
+  try {
+    const editedEmail = await prisma.email.update({
+      where: {
+        id: emailId,
+      },
+      data: {
+        subject: subject,
+        content: content,
+      },
+    });
+
+    return editedEmail;
+  } catch (error) {
+    console.log(error);
+  }
+};
