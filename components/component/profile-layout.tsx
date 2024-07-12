@@ -17,9 +17,25 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
+import { fetchUserDetails } from "@/actions/actions";
 
 export function ProfileLayout() {
   const { data }: any = useSession();
+  const [user, setUser] = useState<any>([]);
+
+  const fetchUser = async () => {
+    const user = await fetchUserDetails();
+    if (user) {
+      setUser(user);
+    }
+  };
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  console.log(data?.user?.id);
+
   return (
     <div className="w-full space-y-4  grid grid-cols-1 m-2 md:grid-cols-1 lg:grid-cols-2">
       <Card className="col-span-2 md:flex items-center p-6">
@@ -43,14 +59,14 @@ export function ProfileLayout() {
               <div className="text-sm font-medium text-muted-foreground">
                 Templates Generated
               </div>
-              <div className="text-2xl font-bold">125</div>
+              <div className="text-2xl font-bold">{user.totalEmails}</div>
             </div>
           </div>
           <div className="flex flex-col items-start gap-1">
             <div className="text-sm font-medium text-muted-foreground">
               Subscription Plan
             </div>
-            <div className="text-2xl font-bold">Pro</div>
+            <div className="text-2xl font-bold">{user.subscription}</div>
           </div>
           <div className="flex flex-col items-start gap-1">
             <div className="text-sm font-medium text-muted-foreground">

@@ -29,17 +29,17 @@ const Header = () => {
       <header className="px-4 lg:px-6 h-16 flex items-center">
         <Link className="flex items-center justify-center" href="/">
           <MailboxIcon className="h-6 w-6" />
-          <span className="sr-only">Cold Email Generator</span>
+          <span className="ml-4 text-md font-medium">Coldmail.io</span>
         </Link>
         <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
           <Link
-            className="text-sm font-medium hover:underline underline-offset-4"
+            className="text-md font-medium hover:underline underline-offset-4"
             href="/templates"
           >
             Templates
           </Link>
           <Link
-            className="text-sm font-medium hover:underline underline-offset-4"
+            className="text-md font-medium hover:underline underline-offset-4"
             href="/pricing"
           >
             Pricing

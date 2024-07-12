@@ -108,3 +108,21 @@ export const editTemplate = async (
     console.log(error);
   }
 };
+
+export const fetchUserDetails = async () => {
+  const session: CustomSession | null = await getServerSession(authOptions);
+  try {
+    const userDetails = await prisma.user.findUnique({
+      where: {
+        userId: session?.user?.id!,
+      },
+      select: {
+        totalEmails: true,
+        subscription: true,
+      },
+    });
+    return userDetails;
+  } catch (error) {
+    console.log(error);
+  }
+};
