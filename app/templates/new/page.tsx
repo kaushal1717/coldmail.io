@@ -417,7 +417,7 @@ const Page: React.FC = () => {
                     </div>
                     {recipientEmail.length > 0 && (
                       <div className="mt-3 w-full">
-                        <Button onClick={openClientWithEmail}>send</Button>
+                        <Button onClick={openClientWithEmail}>Send</Button>
                       </div>
                     )}
                   </DialogDescription>
