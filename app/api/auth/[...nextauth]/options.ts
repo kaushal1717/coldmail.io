@@ -2,13 +2,15 @@ import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "@/util/db";
 import { ISODateString, User } from "next-auth";
 import { JWT } from "next-auth/jwt";
+import { Session } from "next-auth";
+
 export interface CustomSession {
   user?: CustomUser;
   expires: ISODateString;
 }
 
 export interface CustomUser {
-  id?: string | null;
+  id?: string;
   name?: string | null;
   email?: string | null;
   image?: string | null;
@@ -32,11 +34,10 @@ export const authOptions = {
     },
     session: async ({
       session,
-      user,
       token,
     }: {
       session: CustomSession;
-      user: User;
+      user: CustomUser;
       token: JWT;
     }) => {
       if (session?.user) {
