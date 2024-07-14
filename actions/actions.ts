@@ -148,6 +148,7 @@ export const editTemplate = async (
   }
 };
 
+<<<<<<< HEAD
 export const getLimitStatus = async () => {
   const session: CustomSession | null = await getServerSession(authOptions);
   try {
@@ -162,6 +163,21 @@ export const getLimitStatus = async () => {
       },
     });
     return limitStatus;
+=======
+export const fetchUserDetails = async () => {
+  const session: CustomSession | null = await getServerSession(authOptions);
+  try {
+    const userDetails = await prisma.user.findUnique({
+      where: {
+        userId: session?.user?.id!,
+      },
+      select: {
+        totalEmails: true,
+        subscription: true,
+      },
+    });
+    return userDetails;
+>>>>>>> e494493230ba947b7cc36f5994101db858a2aae1
   } catch (error) {
     console.log(error);
   }

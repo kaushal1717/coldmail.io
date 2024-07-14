@@ -42,14 +42,15 @@ export function HeroSection() {
                 </h1>
                 <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
                   Generate highly personalized email templates for your cold
-                  outreach campaigns. Save, share, and even sell your templates
-                  in our marketplace.
+                  outreach campaigns. Save, copy, and send your emails directly
+                  from our app, with options to edit and delete—all in one
+                  place.
                 </p>
               </div>
               {data && (
                 <div className="space-x-4">
                   <Button
-                    className="text-lg"
+                    className="text-lg dark:hover:bg-gray-800 dark:hover:text-gray-50"
                     onClick={() => router.push("/templates")}
                   >
                     Get Started
@@ -58,7 +59,7 @@ export function HeroSection() {
               )}
               {!data && (
                 <Dialog>
-                  <DialogTrigger className="bg-white text-black px-3 py-2 text-lg font-sans font-semibold rounded-lg">
+                  <DialogTrigger className="bg-white text-black px-3 py-2 text-lg font-sans font-semibold rounded-lg dark:hover:bg-gray-800 dark:hover:text-gray-50">
                     Get Started
                   </DialogTrigger>
                   <DialogContent>
@@ -104,22 +105,22 @@ export function HeroSection() {
                     Craft Personalized Emails in Minutes
                   </h2>
                   <p className="max-w-[600px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                    Our intuitive template builder allows you to quickly create
-                    personalized email templates tailored to your target
-                    audience. Save your templates and share them with your team
-                    or list them in our marketplace.
+                    Our AI-powered template builder allows you to quickly create
+                    personalized email templates tailored to your needs. Save
+                    your templates and share them with your friends or
+                    colleagues.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                   <Link
-                    className="inline-flex h-10 items-center justify-center rounded-md bg-gray-900 px-8 text-sm font-medium text-gray-50 shadow transition-colors hover:bg-gray-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-50/90 dark:focus-visible:ring-gray-300"
-                    href="#"
+                    className="inline-flex h-10 items-center justify-center rounded-md bg-gray-900 px-6 text-md font-medium text-gray-50 shadow transition-colors hover:bg-gray-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus-visible:ring-gray-300"
+                    href="/templates/new"
                   >
                     Create Template
                   </Link>
                   <Link
-                    className="inline-flex h-10 items-center justify-center rounded-md border border-gray-200 bg-white px-8 text-sm font-medium shadow-sm transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus-visible:ring-gray-300"
-                    href="#"
+                    className="inline-flex h-10 items-center justify-center rounded-md bg-gray-900 px-8 text-md font-medium text-gray-50 shadow transition-colors hover:bg-gray-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus-visible:ring-gray-300"
+                    href="/pricing"
                   >
                     Browse Plans
                   </Link>
@@ -132,9 +133,9 @@ export function HeroSection() {
           <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight text-center">
             Features
           </h2>
-          <div className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 m-4">
-            <Card>
-              <CardHeader className="flex ">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 md:mx-32 gap-7 m-6 ">
+            <Card className="hover:shadow-gray-700 shadow-md">
+              <CardHeader className="flex">
                 <MailboxIcon className="h-8 w-8 text-blue-500" />
                 <CardTitle>Email Templates</CardTitle>
               </CardHeader>
@@ -146,7 +147,7 @@ export function HeroSection() {
               </CardContent>
             </Card>
 
-            <Card>
+            {/* <Card>
               <CardHeader className="flex ">
                 <ShoppingCart className="h-8 w-8 text-blue-500" />
                 <CardTitle>Marketplace</CardTitle>
@@ -157,8 +158,9 @@ export function HeroSection() {
                   Expand your template library with high-performing content.
                 </p>
               </CardContent>
-            </Card>
-            <Card>
+            </Card> */}
+
+            <Card className="hover:shadow-gray-700 shadow-md">
               <CardHeader className="flex ">
                 <Share className="h-8 w-8 text-blue-500" />
                 <CardTitle>Sharing</CardTitle>
@@ -171,7 +173,7 @@ export function HeroSection() {
               </CardContent>
             </Card>
 
-            <Card>
+            {/* <Card>
               <CardHeader className="flex ">
                 <Calendar className="h-8 w-8 text-blue-500" />
                 <CardTitle>Scheduling</CardTitle>
@@ -182,9 +184,9 @@ export function HeroSection() {
                   app. Automate your outreach and track your results.
                 </p>
               </CardContent>
-            </Card>
+            </Card> */}
 
-            <Card>
+            <Card className="hover:shadow-gray-700 shadow-md">
               <CardHeader className="flex ">
                 <User className="h-8 w-8 text-blue-500" />
                 <CardTitle>User Accounts</CardTitle>
@@ -196,7 +198,8 @@ export function HeroSection() {
                 </p>
               </CardContent>
             </Card>
-            <Card>
+
+            <Card className="hover:shadow-gray-700 shadow-md">
               <CardHeader className="flex ">
                 <Layers className="h-8 w-8 text-blue-500" />
                 <CardTitle>Customization</CardTitle>
