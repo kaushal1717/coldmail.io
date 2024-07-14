@@ -39,7 +39,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { handleSave } from "@/actions/actions";
+import { getLimitStatus, handleSave } from "@/actions/actions";
 
 // Zod schema definition for form validation
 const emailFormSchema = z.object({
@@ -93,6 +93,18 @@ const Page: React.FC = () => {
 
   const onSubmit: SubmitHandler<emailFormType> = async (data) => {
     console.log("Form submitted:", data);
+    const limitStatus = await getLimitStatus();
+    //plans verification
+
+    if (limitStatus?.maxCapacity == true) {
+      toast({
+        title: "Limit exceeded",
+        description: "upgrade your plan to generate",
+      });
+      return;
+    }
+
+    //plan verification end
     try {
       const response = await fetch("/api/gen", {
         method: "POST",
@@ -106,7 +118,6 @@ const Page: React.FC = () => {
       }
       const result: any = await response.json();
       const content = result?.generator?.choices?.[0]?.message?.content;
-      console.log(content);
 
       if (content) {
         setResponseMessage(content);
@@ -162,6 +173,14 @@ const Page: React.FC = () => {
   };
 
   const onSave = async () => {
+    const limitStatus = await getLimitStatus();
+    if (limitStatus?.maxCapacity == true) {
+      toast({
+        title: "Limit exceeded",
+        description: "upgrade your plan to generate",
+      });
+      return;
+    }
     const emailData = await handleSave(responseMessage, subject, category);
     if (emailData) {
       toast({
