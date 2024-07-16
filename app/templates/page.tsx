@@ -42,21 +42,24 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
+import LoadingSkeleton from "@/components/component/loading-skeleton";
+
 export default function Component() {
   const { toast } = useToast();
   const [templates, setTemplates] = useState<any>([]);
-  const [emails, setEmails] = useState<any>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [loading, setLoading] = useState(false);
   const itemsPerPage = 8;
   const router = useRouter();
 
   const fetchTemplates = async () => {
+    setLoading(true);
     const emailTemplates = await handleGet();
-    if (emailTemplates) {
-      setTemplates(emailTemplates[0]);
-      setEmails(emailTemplates);
+    if (emailTemplates!.length > 0 && emailTemplates![0]?.emails?.length > 0) {
+      setTemplates(emailTemplates![0]!);
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -74,14 +77,14 @@ export default function Component() {
 
   const filteredTemplates =
     selectedCategory === "All"
-      ? templates.emails || []
-      : templates.emails?.filter(
+      ? templates?.emails || []
+      : templates?.emails?.filter(
           (template: any) => template.category === selectedCategory
         ) || [];
 
   const indexOfLastTemplate = currentPage * itemsPerPage;
   const indexOfFirstTemplate = indexOfLastTemplate - itemsPerPage;
-  const currentTemplates = filteredTemplates.slice(
+  let currentTemplates = filteredTemplates.slice(
     indexOfFirstTemplate,
     indexOfLastTemplate
   );
@@ -89,13 +92,16 @@ export default function Component() {
 
   const deleteTemplate = async (emailId: string) => {
     const deleted = await handleDelete(emailId);
+    console.log(deleted);
     if (deleted) {
       toast({
         title: "Template Successfully deleted",
         description: "Your template has been deleted",
       });
+      setTemplates(
+        currentTemplates.filter((template: any) => template.id !== emailId)
+      );
     }
-    fetchTemplates();
   };
   return (
     <>
@@ -152,6 +158,10 @@ export default function Component() {
             </Link>
           </div>
         </div>
+        {loading && <LoadingSkeleton />}
+        {!loading && templates.length == 0 && (
+          <div className="text-center text-2xl p-12 ">No Templates</div>
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {currentTemplates?.map((template: any) => (
             <div
