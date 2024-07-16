@@ -2,10 +2,59 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Footer from "./footer";
+import { v4 as uuidv4 } from "uuid";
+import React from "react";
+import sha256 from "crypto-js/sha256";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function Pricing() {
-  const onHandlePayment = () => {
-    <Link href="https://buy.stripe.com/test_9AQ5mc6rc7q75OM5kk"></Link>;
+  const router = useRouter();
+
+  const paymentHandler = async (amount: number) => {
+    const transactionId = "Tr-" + uuidv4().toString().slice(-27);
+    const payload = {
+      merchantId: process.env.NEXT_PUBLIC_MERCHANT_ID,
+      merchantTransactionId: transactionId,
+      merchantUserId: "MUID-" + uuidv4().toString().slice(-30),
+      amount: amount * 100,
+      redirectUrl: `http://localhost:3000/api/status/${transactionId}`,
+      redirectMode: "POST",
+      callbackUrl: `http://localhost:3000/api/status/${transactionId}`,
+      mobileNumber: "9999999999",
+      paymentInstrument: {
+        type: "PAY_PAGE",
+      },
+    };
+    const dataPayload = JSON.stringify(payload);
+    console.log("Payload in json : " + dataPayload);
+
+    const dataBase64 = Buffer.from(dataPayload).toString("base64");
+    console.log("base64 Payload : " + dataBase64);
+
+    const fullURL =
+      dataBase64 + "/pg/v1/pay" + process.env.NEXT_PUBLIC_SALT_KEY;
+    const dataSha256 = sha256(fullURL);
+
+    const checksum = dataSha256 + "###" + process.env.NEXT_PUBLIC_SALT_INDEX;
+    console.log("c====", checksum);
+
+    const response = await axios.post(
+      process.env.NEXT_PUBLIC_UAT_PAY_API_URL as string,
+      {
+        request: dataBase64,
+      },
+      {
+        headers: {
+          accept: "application/json",
+          "Content-Type": "application/json",
+          "X-VERIFY": checksum,
+        },
+      }
+    );
+
+    const redirect = response.data.data.instrumentResponse.redirectInfo.url;
+    router.push(redirect);
   };
   return (
     <>
@@ -21,7 +70,6 @@ export default function Pricing() {
             <Button
               variant="outline"
               className="rounded-3xl mt-5 font-semibold border-gray-500"
-              onClick={onHandlePayment}
             >
               Try the custom and pro plan with our 30-day FREE TRIAL!!
             </Button>
@@ -60,7 +108,7 @@ export default function Pricing() {
                 </p>
               </div>
               <div className="mb-6 space-y-2">
-                <p className="text-4xl font-bold">$9</p>
+                <p className="text-4xl font-bold">₹99</p>
                 <p className="text-gray-500 dark:text-gray-400">per month</p>
               </div>
               <ul className="mb-6 space-y-2 text-gray-500 dark:text-gray-400">
@@ -76,7 +124,14 @@ export default function Pricing() {
                   Advanced features
                 </li>
               </ul>
-              <Button className="w-full">Get Started</Button>
+              <Button
+                className="w-full"
+                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  paymentHandler(99);
+                }}
+              >
+                Get Started
+              </Button>
             </div>
             <div className="rounded-lg border bg-[#020817] p-6">
               <div className="mb-6 space-y-2">
@@ -86,7 +141,7 @@ export default function Pricing() {
                 </p>
               </div>
               <div className="mb-6 space-y-2">
-                <p className="text-4xl font-bold">$29</p>
+                <p className="text-4xl font-bold">₹149</p>
                 <p className="text-gray-500 dark:text-gray-400">per month</p>
               </div>
               <ul className="mb-6 space-y-2 text-gray-500 dark:text-gray-400">
@@ -103,7 +158,9 @@ export default function Pricing() {
                   Enterprise features
                 </li>
               </ul>
-              <Button className="w-full">Get Started</Button>
+              <Button className="w-full" onClick={() => paymentHandler(149)}>
+                Get Started
+              </Button>
             </div>
           </div>
         </div>
