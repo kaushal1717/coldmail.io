@@ -15,11 +15,22 @@ import { editTemplate, handleGetWithId } from "@/actions/actions";
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { PlusCircle, Send, X } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export default function page({ params }: { params: { id: string } }) {
   const [id, setId] = useState<string>();
+  const [recipientEmail, setRecipientEmail] = useState<string[]>([]);
   const [subject, setSubject] = useState<string>("");
   const [content, setContent] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
   const router = useRouter();
   const { toast } = useToast();
   const fetchEmail = async () => {
@@ -42,6 +53,34 @@ export default function page({ params }: { params: { id: string } }) {
     }
   };
 
+  const addRecipient = () => {
+    if (email.length == 0) {
+      toast({
+        title: "Email field is empty",
+        description: "Please enter recipient email",
+      });
+      return;
+    }
+    if (recipientEmail.find((mail) => mail === email)) {
+      toast({
+        title: "Enter a new email",
+        description: "Email already exists in the list!",
+      });
+      return;
+    }
+    setRecipientEmail((prev: string[]) => [...prev, email]);
+    setEmail("");
+  };
+
+  const removeRecipient = (mail: string) => {
+    setRecipientEmail(recipientEmail.filter((email) => email !== mail));
+  };
+
+  const openClientWithEmail = () => {
+    window.location.href = `mailto:${recipientEmail.join(
+      ","
+    )}?subject=${subject}&body=${encodeURIComponent(content)}`;
+  };
   useEffect(() => {
     fetchEmail();
   }, []);
@@ -77,8 +116,59 @@ export default function page({ params }: { params: { id: string } }) {
           </div>
         </CardContent>
         <CardFooter className="flex justify-end gap-2 p-6">
-          <Button variant="outline">Cancel</Button>
+          <Button variant="outline" onClick={() => router.back()}>
+            Cancel
+          </Button>
           <Button onClick={saveChanges}>Save Changes</Button>
+          <Dialog>
+            <DialogTrigger className="flex flex-row bg-white font-sans  rounded-lg">
+              <Button className="flex items-center gap-2">
+                Send
+                <Send size={14} />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add Emails</DialogTitle>
+                <DialogDescription>
+                  <div className="flex mt-2 items-center gap-2">
+                    <Input
+                      placeholder="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <PlusCircle
+                      size={30}
+                      color="white"
+                      className="cursor-pointer"
+                      onClick={addRecipient}
+                    />
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {recipientEmail.length > 0 &&
+                      recipientEmail.map((email: string) => {
+                        return (
+                          <div key={email}>
+                            <div className="bg-slate-300 px-2 py-1 text-sm flex items-center justify-between gap-2 text-black rounded-lg">
+                              {email}
+                              <X
+                                size={16}
+                                onClick={() => removeRecipient(email)}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                  {recipientEmail.length > 0 && (
+                    <div className="mt-3 w-full">
+                      <Button onClick={openClientWithEmail}>Send</Button>
+                    </div>
+                  )}
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
         </CardFooter>
       </Card>
     </div>
