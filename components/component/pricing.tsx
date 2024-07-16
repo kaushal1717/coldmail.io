@@ -18,9 +18,9 @@ export default function Pricing() {
       merchantTransactionId: transactionId,
       merchantUserId: "MUID-" + uuidv4().toString().slice(-30),
       amount: amount * 100,
-      redirectUrl: `http://localhost:3000/api/status/${transactionId}`,
+      redirectUrl: `http://localhost:3000/api/payment-status/${transactionId}`,
       redirectMode: "POST",
-      callbackUrl: `http://localhost:3000/api/status/${transactionId}`,
+      callbackUrl: `http://localhost:3000/api/payment-status/${transactionId}`,
       mobileNumber: "9999999999",
       paymentInstrument: {
         type: "PAY_PAGE",
