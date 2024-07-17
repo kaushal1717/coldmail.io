@@ -89,20 +89,23 @@ export default function Component() {
     indexOfLastTemplate
   );
   const totalPages = Math.ceil(filteredTemplates.length / itemsPerPage);
-
+  console.log("templates", templates);
   const deleteTemplate = async (emailId: string) => {
     const deleted = await handleDelete(emailId);
-    console.log(deleted);
     if (deleted) {
       toast({
         title: "Template Successfully deleted",
         description: "Your template has been deleted",
       });
-      setTemplates(
-        currentTemplates.filter((template: any) => template.id !== emailId)
-      );
+      setTemplates((prev: any) => {
+        let filtered = prev.emails.filter(
+          (email: any) => email.id !== deleted.id
+        );
+        return { ...prev, emails: filtered };
+      });
     }
   };
+
   return (
     <>
       <div className="w-full max-w-6xl mx-auto mt-6 px-4 py-8 sm:px-6 lg:px-8 border-gray-700 border-2 rounded-md bg-gray-800 bg-opacity-50 shadow-gray-700 shadow-md">
@@ -159,7 +162,7 @@ export default function Component() {
           </div>
         </div>
         {loading && <LoadingSkeleton />}
-        {!loading && templates.length == 0 && (
+        {!loading && currentTemplates.length == 0 && (
           <div className="text-center text-2xl p-12 ">No Templates</div>
         )}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
