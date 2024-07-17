@@ -57,7 +57,7 @@ export function ProfileLayout() {
           <div className="grid gap-2">
             <div className="flex flex-col items-start gap-1">
               <div className="text-sm font-medium text-muted-foreground">
-                Templates Generated
+                Saved Templates
               </div>
               <div className="text-2xl font-bold">{user.totalEmails}</div>
             </div>
@@ -66,13 +66,16 @@ export function ProfileLayout() {
             <div className="text-sm font-medium text-muted-foreground">
               Subscription Plan
             </div>
-            <div className="text-2xl font-bold">{user.subscription}</div>
+            <div className="text-2xl font-bold">
+              {String(user.subscription).charAt(0).toUpperCase() +
+                String(user.subscription).slice(1)}
+            </div>
           </div>
           <div className="flex flex-col items-start gap-1">
             <div className="text-sm font-medium text-muted-foreground">
               Max Templates
             </div>
-            <div className="text-2xl font-bold">500</div>
+            <div className="text-2xl font-bold">{user.maxCapacity}</div>
           </div>
         </CardContent>
       </Card>
