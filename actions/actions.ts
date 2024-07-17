@@ -177,6 +177,7 @@ export const fetchUserDetails = async () => {
       select: {
         totalEmails: true,
         subscription: true,
+        maxCapacity: true,
       },
     });
     return userDetails;

@@ -387,18 +387,41 @@ const Page: React.FC = () => {
             className="h-[750px] resize-none my-4 rounded-lg"
             placeholder="Your generated email will appear here..."
             value={responseMessage}
+            onChange={(e) => {
+              if (responseMessage) {
+                setResponseMessage(e.target.value);
+              }
+            }}
           />
           <div className="flex justify-between">
             <div className="flex gap-2">
-              <Button variant="outline" onClick={handleCopy}>
+              <Button
+                variant="outline"
+                onClick={handleCopy}
+                disabled={responseMessage ? false : true}
+              >
                 Copy
               </Button>
-              <Button variant="outline" onClick={onSave}>
+              <Button
+                variant="outline"
+                onClick={onSave}
+                disabled={responseMessage ? false : true}
+              >
                 Save
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setResponseMessage("")}
+                disabled={responseMessage ? false : true}
+              >
+                Clear
               </Button>
             </div>
             <Dialog>
-              <DialogTrigger className="flex flex-row bg-white text-black px-3 py-2  font-sans font-semibold rounded-lg">
+              <DialogTrigger
+                className="flex flex-row bg-white text-black px-3 py-2  font-sans font-semibold rounded-lg"
+                disabled={responseMessage ? false : true}
+              >
                 Send
               </DialogTrigger>
               <DialogContent>
