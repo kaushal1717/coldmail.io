@@ -40,6 +40,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { getLimitStatus, handleSave } from "@/actions/actions";
+import { log } from "console";
 
 // Zod schema definition for form validation
 const emailFormSchema = z.object({
@@ -117,10 +118,12 @@ const Page: React.FC = () => {
         throw new Error("Network error occurred: ");
       }
       const result: any = await response.json();
-      const content = result?.generator?.choices?.[0]?.message?.content;
-
+      const content: string = result?.generator?.choices?.[0]?.message?.content;
+      const splitContent: string[] = content.split("\n");
+      console.log(splitContent);
+      let modifiedContent: string = splitContent.slice(2).join("\n");
       if (content) {
-        setResponseMessage(content);
+        setResponseMessage(modifiedContent);
         setSubject(data.subject);
         setCategory(data.emailPurpose);
       } else {
