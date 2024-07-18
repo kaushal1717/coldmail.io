@@ -119,11 +119,11 @@ const Page: React.FC = () => {
       }
       const result: any = await response.json();
       const content: string = result?.generator?.choices?.[0]?.message?.content;
-      const splitContent: string[] = content.split("\n");
-      console.log(splitContent);
-      let modifiedContent: string = splitContent.slice(2).join("\n");
+      // const splitContent: string[] = content.split("\n");
+      // console.log(splitContent);
+      // let modifiedContent: string = splitContent.slice(2).join("\n");
       if (content) {
-        setResponseMessage(modifiedContent);
+        setResponseMessage(content);
         setSubject(data.subject);
         setCategory(data.emailPurpose);
       } else {
