@@ -148,12 +148,12 @@ export const editTemplate = async (
   }
 };
 
-export const getLimitStatus = async () => {
+export const getLimitStatus = async (userId?: string) => {
   const session: CustomSession | null = await getServerSession(authOptions);
   try {
     const limitStatus = await prisma.user.findUnique({
       where: {
-        userId: session?.user?.id,
+        userId: session?.user?.id || userId,
       },
       select: {
         totalEmails: true,
@@ -181,6 +181,25 @@ export const fetchUserDetails = async () => {
       },
     });
     return userDetails;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const onPaymentSuccess = async (subscription: string) => {
+  const session: CustomSession | null = await getServerSession(authOptions);
+  try {
+    const userLimitStatus = await getLimitStatus(session?.user?.id);
+    const user = await prisma.user.update({
+      where: {
+        userId: session?.user?.id!,
+      },
+      data: {
+        subscription: subscription,
+        maxCapacity: userLimitStatus?.maxCapacity ? false : true,
+      },
+    });
+    return user;
   } catch (error) {
     console.log(error);
   }
