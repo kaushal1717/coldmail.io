@@ -23,9 +23,9 @@ export default function Pricing() {
       merchantTransactionId: transactionId,
       merchantUserId: userId,
       amount: amount * 100,
-      redirectUrl: `http://localhost:3000/api/payment-status/${transactionId}`,
+      redirectUrl: `http://localhost:3000/api/payment-status?userId=${userId}`,
       redirectMode: "POST",
-      callbackUrl: `http://localhost:3000/api/payment-status/${transactionId}`,
+      callbackUrl: `http://localhost:3000/api/payment-status?userId=${userId}`,
       mobileNumber: "9999999999",
       paymentInstrument: {
         type: "PAY_PAGE",
@@ -44,20 +44,19 @@ export default function Pricing() {
     const checksum = dataSha256 + "###" + process.env.NEXT_PUBLIC_SALT_INDEX;
     console.log("c====", checksum);
 
-    const response = await axios.post(
-      process.env.NEXT_PUBLIC_UAT_PAY_API_URL as string,
-      {
+    const options = {
+      method: "POST",
+      url: process.env.NEXT_PUBLIC_UAT_PAY_API_URL,
+      headers: {
+        accept: "application/json",
+        "Content-Type": "application/json",
+        "X-VERIFY": checksum,
+      },
+      data: {
         request: dataBase64,
       },
-      {
-        headers: {
-          accept: "application/json",
-          "Content-Type": "application/json",
-          "X-VERIFY": checksum,
-        },
-      }
-    );
-
+    };
+    let response = await axios.request(options);
     const redirect = response.data.data.instrumentResponse.redirectInfo.url;
     router.push(redirect);
   };

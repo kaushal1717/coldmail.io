@@ -42,7 +42,7 @@ export const handleSave = async (
           },
         });
       }
-    } else if (user.subscription == "premium") {
+    } else if (user.subscription == "pro") {
       if (user.totalEmails >= 20 && user.maxCapacity == false) {
         await prisma.user.update({
           where: {
@@ -186,17 +186,19 @@ export const fetchUserDetails = async () => {
   }
 };
 
-export const onPaymentSuccess = async (subscription: string) => {
-  const session: CustomSession | null = await getServerSession(authOptions);
+export const onPaymentSuccess = async (
+  subscription: string,
+  userId: string
+) => {
   try {
-    const userLimitStatus = await getLimitStatus(session?.user?.id);
+    const userLimitStatus = await getLimitStatus(userId);
     const user = await prisma.user.update({
       where: {
-        userId: session?.user?.id!,
+        userId: userId,
       },
       data: {
         subscription: subscription,
-        maxCapacity: userLimitStatus?.maxCapacity ? false : true,
+        maxCapacity: false,
       },
     });
     return user;
