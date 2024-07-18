@@ -7,16 +7,21 @@ import React from "react";
 import sha256 from "crypto-js/sha256";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function Pricing() {
   const router = useRouter();
+  const { data }: any = useSession();
 
-  const paymentHandler = async (amount: number) => {
+  const userId = data?.user?.id;
+  console.log(userId);
+  const paymentHandler = async (amount: number, userId: string) => {
     const transactionId = "Tr-" + uuidv4().toString().slice(-27);
+
     const payload = {
       merchantId: process.env.NEXT_PUBLIC_MERCHANT_ID,
       merchantTransactionId: transactionId,
-      merchantUserId: "MUID-" + uuidv4().toString().slice(-30),
+      merchantUserId: userId,
       amount: amount * 100,
       redirectUrl: `http://localhost:3000/api/payment-status/${transactionId}`,
       redirectMode: "POST",
@@ -127,7 +132,7 @@ export default function Pricing() {
               <Button
                 className="w-full"
                 onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                  paymentHandler(99);
+                  paymentHandler(99, userId);
                 }}
               >
                 Get Started
@@ -158,7 +163,10 @@ export default function Pricing() {
                   Enterprise features
                 </li>
               </ul>
-              <Button className="w-full" onClick={() => paymentHandler(149)}>
+              <Button
+                className="w-full"
+                onClick={() => paymentHandler(149, userId)}
+              >
                 Get Started
               </Button>
             </div>
