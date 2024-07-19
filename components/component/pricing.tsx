@@ -3,15 +3,18 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Footer from "./footer";
 import { v4 as uuidv4 } from "uuid";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import sha256 from "crypto-js/sha256";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { getLimitStatus } from "@/actions/actions";
 
 export default function Pricing() {
   const router = useRouter();
   const { data }: any = useSession();
+
+  const [subscriptionInfo, setSubscriptionInfo] = useState<any>();
 
   const userId = data?.user?.id;
   console.log(userId);
@@ -60,6 +63,20 @@ export default function Pricing() {
     const redirect = response.data.data.instrumentResponse.redirectInfo.url;
     router.push(redirect);
   };
+
+  useEffect(() => {
+    const getUserSubscription = async () => {
+      try {
+        const result = await getLimitStatus();
+        const subscription = result?.subscription;
+        setSubscriptionInfo(subscription);
+      } catch (error) {
+        console.log("Error : ", error);
+      }
+    };
+    getUserSubscription();
+  }, []);
+
   return (
     <>
       <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-800 bg-opacity-50 shadow-gray-700">
@@ -102,7 +119,6 @@ export default function Pricing() {
                   Basic features
                 </li>
               </ul>
-              <Button className="w-full mt-14">Get Started</Button>
             </div>
             <div className="rounded-lg border bg-[#020817] p-6">
               <div className="mb-6 space-y-2">
@@ -133,8 +149,9 @@ export default function Pricing() {
                 onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                   paymentHandler(99, userId);
                 }}
+                disabled={subscriptionInfo == "pro"}
               >
-                Get Started
+                {subscriptionInfo == "pro" ? "current plan" : "Get started"}
               </Button>
             </div>
             <div className="rounded-lg border bg-[#020817] p-6">
@@ -165,8 +182,9 @@ export default function Pricing() {
               <Button
                 className="w-full"
                 onClick={() => paymentHandler(149, userId)}
+                disabled={subscriptionInfo == "premium"}
               >
-                Get Started
+                {subscriptionInfo == "premium" ? "current plan" : "Get started"}
               </Button>
             </div>
           </div>
