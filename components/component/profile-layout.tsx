@@ -59,7 +59,7 @@ export function ProfileLayout() {
               <div className="text-sm font-medium text-muted-foreground">
                 Saved Templates
               </div>
-              <div className="text-2xl font-bold">{user.totalEmails}</div>
+              <div className="text-2xl font-bold">{user.savedEmails}</div>
             </div>
           </div>
           <div className="flex flex-col items-start gap-1">

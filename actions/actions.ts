@@ -28,6 +28,7 @@ export const handleSave = async (
       },
       data: {
         totalEmails: { increment: 1 },
+        savedEmails: { increment: 1 },
       },
     });
 
@@ -100,7 +101,7 @@ export const handleDelete = async (emailId: string) => {
           userId: session?.user?.id,
         },
         data: {
-          totalEmails: {
+          savedEmails: {
             decrement: 1,
           },
         },
@@ -178,6 +179,7 @@ export const fetchUserDetails = async () => {
         totalEmails: true,
         subscription: true,
         maxCapacity: true,
+        savedEmails: true,
       },
     });
     return userDetails;
@@ -199,6 +201,7 @@ export const onPaymentSuccess = async (
       data: {
         subscription: subscription,
         maxCapacity: false,
+        totalEmails: 0,
       },
     });
     return user;
