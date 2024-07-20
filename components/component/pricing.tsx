@@ -9,6 +9,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { getLimitStatus } from "@/actions/actions";
+import { SquareCheck } from "lucide-react";
 
 export default function Pricing() {
   const router = useRouter();
@@ -98,7 +99,7 @@ export default function Pricing() {
           <div className="mt-12 grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3">
             <div className="rounded-lg border bg-[#020817] p-6">
               <div className="mb-6 space-y-2">
-                <h3 className="text-2xl font-bold">Starter</h3>
+                <h3 className="text-2xl font-bold">Default</h3>
                 <p className="text-gray-500 dark:text-gray-400">
                   Perfect for individuals and small teams.
                 </p>
@@ -108,15 +109,7 @@ export default function Pricing() {
               </div>
               <ul className="mb-6 space-y-2 text-gray-500 dark:text-gray-400">
                 <li className="flex items-center">
-                  <CheckIcon className="mr-2 h-4 w-4 fill-primary" />
-                  10 GB storage
-                </li>
-                <li className="flex items-center">
-                  <CheckIcon className="mr-2 h-4 w-4 fill-primary" />1 user
-                </li>
-                <li className="flex items-center">
-                  <CheckIcon className="mr-2 h-4 w-4 fill-primary" />
-                  Basic features
+                  8 templates can be generated.
                 </li>
               </ul>
             </div>
@@ -129,19 +122,10 @@ export default function Pricing() {
               </div>
               <div className="mb-6 space-y-2">
                 <p className="text-4xl font-bold">₹99</p>
-                <p className="text-gray-500 dark:text-gray-400">per month</p>
               </div>
               <ul className="mb-6 space-y-2 text-gray-500 dark:text-gray-400">
                 <li className="flex items-center">
-                  <CheckIcon className="mr-2 h-4 w-4 fill-primary" />
-                  100 GB storage
-                </li>
-                <li className="flex items-center">
-                  <CheckIcon className="mr-2 h-4 w-4 fill-primary" />5 users
-                </li>
-                <li className="flex items-center">
-                  <CheckIcon className="mr-2 h-4 w-4 fill-primary" />
-                  Advanced features
+                  20 templates can be generated.
                 </li>
               </ul>
               <Button
@@ -151,7 +135,7 @@ export default function Pricing() {
                 }}
                 disabled={subscriptionInfo == "pro"}
               >
-                {subscriptionInfo == "pro" ? "current plan" : "Get started"}
+                {subscriptionInfo == "pro" ? "Current plan" : "Get started"}
               </Button>
             </div>
             <div className="rounded-lg border bg-[#020817] p-6">
@@ -163,20 +147,10 @@ export default function Pricing() {
               </div>
               <div className="mb-6 space-y-2">
                 <p className="text-4xl font-bold">₹149</p>
-                <p className="text-gray-500 dark:text-gray-400">per month</p>
               </div>
               <ul className="mb-6 space-y-2 text-gray-500 dark:text-gray-400">
                 <li className="flex items-center">
-                  <CheckIcon className="mr-2 h-4 w-4 fill-primary" />1 TB
-                  storage
-                </li>
-                <li className="flex items-center">
-                  <CheckIcon className="mr-2 h-4 w-4 fill-primary" />
-                  Unlimited users
-                </li>
-                <li className="flex items-center">
-                  <CheckIcon className="mr-2 h-4 w-4 fill-primary" />
-                  Enterprise features
+                  Unlimited templates can be generated
                 </li>
               </ul>
               <Button
@@ -184,7 +158,7 @@ export default function Pricing() {
                 onClick={() => paymentHandler(149, userId)}
                 disabled={subscriptionInfo == "premium"}
               >
-                {subscriptionInfo == "premium" ? "current plan" : "Get started"}
+                {subscriptionInfo == "premium" ? "Current plan" : "Get started"}
               </Button>
             </div>
           </div>
