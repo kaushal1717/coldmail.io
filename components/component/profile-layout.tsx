@@ -34,7 +34,14 @@ export function ProfileLayout() {
     fetchUser();
   }, []);
 
-  console.log(data?.user?.id);
+  const checkStatus = (): number => {
+    if (user.subscription == "free") {
+      return 8;
+    } else if (user.subscription == "pro") {
+      return 20;
+    }
+    return 0;
+  };
 
   return (
     <div className="w-full space-y-4  grid grid-cols-1 m-2 md:grid-cols-1 lg:grid-cols-2">
@@ -59,7 +66,7 @@ export function ProfileLayout() {
               <div className="text-sm font-medium text-muted-foreground">
                 Saved Templates
               </div>
-              <div className="text-2xl font-bold">{user.totalEmails}</div>
+              <div className="text-2xl font-bold">{user.savedEmails}</div>
             </div>
           </div>
           <div className="flex flex-col items-start gap-1">
@@ -73,9 +80,17 @@ export function ProfileLayout() {
           </div>
           <div className="flex flex-col items-start gap-1">
             <div className="text-sm font-medium text-muted-foreground">
-              Max Templates
+              Current Plan Capacity
             </div>
-            <div className="text-2xl font-bold">{user.maxCapacity}</div>
+            <div className="text-2xl font-bold">
+              {checkStatus() == 0 ? (
+                "Unlimited"
+              ) : (
+                <p>
+                  {user.totalEmails} / {checkStatus()}
+                </p>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>

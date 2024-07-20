@@ -122,7 +122,7 @@ export default function Pricing() {
             </div>
             <div className="rounded-lg border bg-[#020817] p-6">
               <div className="mb-6 space-y-2">
-                <h3 className="text-2xl font-bold">Custom</h3>
+                <h3 className="text-2xl font-bold">Pro</h3>
                 <p className="text-gray-500 dark:text-gray-400">
                   Perfect for growing teams and businesses.
                 </p>
@@ -156,7 +156,7 @@ export default function Pricing() {
             </div>
             <div className="rounded-lg border bg-[#020817] p-6">
               <div className="mb-6 space-y-2">
-                <h3 className="text-2xl font-bold">Pro</h3>
+                <h3 className="text-2xl font-bold">Premium</h3>
                 <p className="text-gray-500 dark:text-gray-400">
                   Perfect for large teams and organizations.
                 </p>

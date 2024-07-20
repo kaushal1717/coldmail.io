@@ -19,6 +19,7 @@ model User {
   email String @unique
   image String?
   emails Email[]
+  savedEmails Int @default(0)
   totalEmails Int @default(0)
   subscription String @default("free")
   maxCapacity Boolean @default(false)
@@ -28,7 +29,7 @@ model Email {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
   author   User   @relation(fields: [authorId], references: [userId])
   authorId String 
-  content String
+  content String 
   category String 
   subject String
 }
