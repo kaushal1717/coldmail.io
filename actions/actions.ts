@@ -5,6 +5,7 @@ import {
 } from "@/app/api/auth/[...nextauth]/options";
 import { getServerSession } from "next-auth";
 import { prisma } from "@/util/db";
+import { nanoid } from "nanoid";
 
 export const handleSave = async (
   response: string,
@@ -19,6 +20,7 @@ export const handleSave = async (
         content: response,
         subject: subject,
         category: category,
+        uniqueIdentifier: nanoid(),
       },
     });
 
@@ -73,6 +75,7 @@ export const handleGet = async () => {
             content: true,
             category: true,
             subject: true,
+            uniqueIdentifier: true,
           },
         },
       },
@@ -205,6 +208,20 @@ export const onPaymentSuccess = async (
       },
     });
     return user;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const handleGetWithUniqueId = async (uniqueIdentifier: string) => {
+  try {
+    const getEmail = await prisma.email.findFirst({
+      where: {
+        uniqueIdentifier: uniqueIdentifier,
+      },
+    });
+
+    return getEmail;
   } catch (error) {
     console.log(error);
   }
