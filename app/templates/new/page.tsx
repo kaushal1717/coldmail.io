@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/dialog";
 import { getLimitStatus, handleSave } from "@/actions/actions";
 import { log } from "console";
+import clsx from "clsx";
 
 // Zod schema definition for form validation
 const emailFormSchema = z.object({
@@ -79,6 +80,14 @@ const Page: React.FC = () => {
   const [recipientEmail, setRecipientEmail] = useState<string[]>([]);
   const [subject, setSubject] = useState<string>("");
   const [category, setCategory] = useState<string>("");
+  const [selectedValue, setSelectedValue] = useState("");
+
+  const handleValueChange = (value: any) => {
+    console.log(value);
+    setSelectedValue(value);
+    methods.setValue("emailTone", value);
+  };
+
   const { toast } = useToast();
   const methods = useForm<emailFormType>({
     resolver: zodResolver(emailFormSchema),
@@ -290,29 +299,33 @@ const Page: React.FC = () => {
               <div className="space-y-2 my-4">
                 <FormLabel className="text-lg">Email Tone</FormLabel>
                 <RadioGroup
-                  onValueChange={methods.setValue.bind(null, "emailTone")}
-                  className="mx-4"
+                  onValueChange={handleValueChange}
+                  className=" flex flex-wrap "
                 >
-                  <div className="space-y-1">
-                    <RadioGroupItem value="formal" />
-                    <Label className="ml-2">Formal</Label>
-                  </div>
-                  <div className="space-y-1">
-                    <RadioGroupItem value="informal" />
-                    <Label className="ml-2">Informal</Label>
-                  </div>
-                  <div className="space-y-1">
-                    <RadioGroupItem value="enthusiastic" />
-                    <Label className="ml-2">Enthusiastic</Label>
-                  </div>
-                  <div className="space-y-1">
-                    <RadioGroupItem value="concise" />
-                    <Label className="ml-2">Concise</Label>
-                  </div>
-                  <div className="space-y-1">
-                    <RadioGroupItem value="friendly" />
-                    <Label className="ml-2">Friendly</Label>
-                  </div>
+                  {[
+                    "formal",
+                    "informal",
+                    "enthusiastic",
+                    "concise",
+                    "friendly",
+                  ].map((tone) => (
+                    <div key={tone} className="">
+                      <RadioGroupItem
+                        value={tone}
+                        id={tone}
+                        className="hidden"
+                      />
+                      <Label
+                        htmlFor={tone}
+                        className={clsx(
+                          "block p-2 cursor-pointer rounded-full px-6 py-4 border-2 ",
+                          selectedValue === tone ? "bg-gray-200 text-black" : ""
+                        )}
+                      >
+                        {tone.charAt(0).toUpperCase() + tone.slice(1)}
+                      </Label>
+                    </div>
+                  ))}
                 </RadioGroup>
                 {methods.formState.errors.emailTone && (
                   <span className="text-red-500">

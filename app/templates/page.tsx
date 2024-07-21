@@ -10,7 +10,6 @@ import {
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -18,7 +17,7 @@ import {
 } from "@/components/ui/pagination";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { EyeIcon, Pencil, TrashIcon } from "lucide-react";
+import { CopyIcon, EyeIcon, Pencil, Share, TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { handleDelete, handleGet } from "@/actions/actions";
 import {
@@ -43,6 +42,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
 import LoadingSkeleton from "@/components/component/loading-skeleton";
+import { Input } from "@/components/ui/input";
 
 export default function Component() {
   const { toast } = useToast();
@@ -106,6 +106,13 @@ export default function Component() {
     }
   };
 
+  const copyShareLink = (link: string) => {
+    navigator.clipboard.writeText(link);
+    toast({
+      title: "Link copied",
+      description: "share this link to others to share the template",
+    });
+  };
   return (
     <>
       <div className="w-full max-w-6xl mx-auto mt-6 px-4 py-8 sm:px-6 lg:px-8 border-gray-700 border-2 rounded-md bg-gray-800 bg-opacity-50 shadow-gray-700 shadow-md">
@@ -192,9 +199,9 @@ export default function Component() {
                       <Textarea
                         className="h-[450px] resize-none my-4 rounded-lg outline-none focus-visible:ring-transparent  border-none focus:ring-0 scroll "
                         readOnly={true}
-                      >
-                        {template.content}
-                      </Textarea>
+                        defaultValue={template.content}
+                      />
+
                       <Button
                         className="gap-2 font-semibold"
                         onClick={() =>
@@ -234,6 +241,34 @@ export default function Component() {
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
+                  <span className="text-slate-400">|</span>
+                  <Dialog>
+                    <DialogTrigger>
+                      <Button variant="ghost">
+                        <Share className="w-5 h-5 text-slate-300" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Share</DialogTitle>
+                      </DialogHeader>
+                      <Input
+                        readOnly
+                        value={`${window.location.origin}/share/${template.uniqueIdentifier}`}
+                      />
+                      <Button
+                        className="gap-2"
+                        onClick={() =>
+                          copyShareLink(
+                            `${window.location.origin}/share/${template.uniqueIdentifier}`
+                          )
+                        }
+                      >
+                        <CopyIcon className="w-5 h-5" />
+                        Copy
+                      </Button>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </div>
             </div>

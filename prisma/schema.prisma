@@ -32,4 +32,5 @@ model Email {
   content String 
   category String 
   subject String
+  uniqueIdentifier String 
 }
