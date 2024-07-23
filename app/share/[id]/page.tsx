@@ -4,7 +4,14 @@ import SaveButton from "@/components/component/SaveButton";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { MailboxIcon } from "lucide-react";
+import { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Coldmail.io",
+  description: "Personalized Cold Emails Made Easy",
+  metadataBase: new URL(new URL(process.env.NEXTAUTH_URL!)),
+};
 
 const page = async ({ params }: { params: { id: string } }) => {
   const getEmail = await handleGetWithUniqueId(params.id);
