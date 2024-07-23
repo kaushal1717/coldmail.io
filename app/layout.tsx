@@ -9,6 +9,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Coldmail.io",
   description: "Personalized Cold Emails Made Easy",
+  openGraph: {
+    images: "/logo.png",
+  },
 };
 
 export default function RootLayout({

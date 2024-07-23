@@ -4,27 +4,7 @@ import SaveButton from "@/components/component/SaveButton";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { MailboxIcon } from "lucide-react";
-import { Metadata } from "next";
 import Link from "next/link";
-
-export async function generateMetadata({
-  params,
-}: {
-  params: { id: string };
-}): Promise<Metadata> {
-  const email = await handleGetWithUniqueId(params.id);
-  return {
-    openGraph: {
-      images: [
-        {
-          url: `http://localhost:3000/api/og?id=${params.id}`,
-          width: 1200,
-          height: 630,
-        },
-      ],
-    },
-  };
-}
 
 const page = async ({ params }: { params: { id: string } }) => {
   const getEmail = await handleGetWithUniqueId(params.id);
