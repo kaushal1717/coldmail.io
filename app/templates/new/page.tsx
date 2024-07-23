@@ -367,11 +367,12 @@ const Page: React.FC = () => {
                           }
                         </span>
                       )}
-                      {methods.formState.errors.socialLinks?.[index]?.link && (
+                      {methods?.formState?.errors?.socialLinks?.[index]
+                        ?.link && (
                         <span className="text-red-500">
                           {
-                            methods.formState.errors.socialLinks?.[index]?.link
-                              .message
+                            methods?.formState?.errors?.socialLinks?.[index]
+                              ?.link.message
                           }
                         </span>
                       )}
