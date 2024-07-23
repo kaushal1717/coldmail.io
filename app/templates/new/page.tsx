@@ -372,7 +372,7 @@ const Page: React.FC = () => {
                         <span className="text-red-500">
                           {
                             methods?.formState?.errors?.socialLinks?.[index]
-                              ?.link.message
+                              ?.link?.message!
                           }
                         </span>
                       )}
