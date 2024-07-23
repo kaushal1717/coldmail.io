@@ -363,7 +363,7 @@ const Page: React.FC = () => {
                         <span className="text-red-500">
                           {
                             methods.formState.errors.socialLinks?.[index]
-                              ?.platform.message
+                              ?.platform.message!
                           }
                         </span>
                       )}
