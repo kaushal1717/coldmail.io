@@ -43,11 +43,11 @@ export async function POST(req: any, res: NextResponse) {
       const user = await onPaymentSuccess("premium", userId);
       console.log(user);
     }
-    return NextResponse.redirect("http://localhost:3000/success", {
+    return NextResponse.redirect(`${process.env.NEXTAUTH_URL}/success`, {
       status: 301,
     });
   } else
-    return NextResponse.redirect("http://localhost:3000/failure", {
+    return NextResponse.redirect(`${process.env.NEXTAUTH_URL}/failure`, {
       // a 301 status is required to redirect from a POST to a GET route
       status: 301,
     });

@@ -27,9 +27,9 @@ export default function Pricing() {
       merchantTransactionId: transactionId,
       merchantUserId: userId,
       amount: amount * 100,
-      redirectUrl: `http://localhost:3000/api/payment-status?userId=${userId}`,
+      redirectUrl: `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/payment-status?userId=${userId}`,
       redirectMode: "POST",
-      callbackUrl: `http://localhost:3000/api/payment-status?userId=${userId}`,
+      callbackUrl: `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/payment-status?userId=${userId}`,
       mobileNumber: "9999999999",
       paymentInstrument: {
         type: "PAY_PAGE",
