@@ -50,7 +50,7 @@ export default function Pricing() {
 
     const options = {
       method: "POST",
-      url: `${process.env.NEXT_PUBLIC_UAT_PAY_API_URL}/pay`,
+      url: process.env.NEXT_PUBLIC_UAT_PAY_API_URL,
       headers: {
         accept: "application/json",
         "Content-Type": "application/json",
