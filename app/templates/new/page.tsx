@@ -205,7 +205,7 @@ const Page: React.FC = () => {
 
   return (
     <>
-      <h2 className="flex justify-center items-center text-3xl font-bold tracking-wide">
+      <h2 className="text-2xl flex justify-center items-center sm:text-3xl font-bold sm:tracking-wide">
         Create new template
       </h2>
 
