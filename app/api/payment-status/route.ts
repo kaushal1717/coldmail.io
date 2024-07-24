@@ -21,7 +21,7 @@ export async function POST(req: any, res: NextResponse) {
 
   const options = {
     method: "GET",
-    url: `https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/${merchantId}/${transactionId}`,
+    url: `${process.env.UAT_PAY_API_URL}/status/${merchantId}/${transactionId}`,
     headers: {
       accept: "application/json",
       "Content-Type": "application/json",
