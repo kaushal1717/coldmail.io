@@ -24,6 +24,8 @@
     "@radix-ui/react-toast": "^1.2.1",
     "@stripe/react-stripe-js": "^2.7.0",
     "@stripe/stripe-js": "^3.3.0",
+    "@upstash/ratelimit": "^2.0.1",
+    "@upstash/redis": "^1.33.0",
     "@vercel/og": "^0.6.2",
     "axios": "^1.6.8",
     "class-variance-authority": "^0.7.0",
