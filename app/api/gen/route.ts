@@ -1,8 +1,25 @@
 import { NextResponse } from "next/server";
 import { groq } from "@/helper/groq.helper";
 import { emailFormType } from "@/app/templates/new/page";
+import { headers } from "next/headers";
+import { Ratelimit } from "@upstash/ratelimit";
+import { redis } from "@/util/upstash";
+
+const ratelimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(5, "120s"),
+});
 
 export async function POST(request: Request) {
+  const ip = headers().get("x-forwarded-for");
+  const { success } = await ratelimit.limit(ip!);
+
+  if (!success)
+    return NextResponse.json({
+      ratelimited:
+        "Unable to process the request, limit reached wait for 2 minutes",
+    });
+
   const {
     senderName,
     emailTone,

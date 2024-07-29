@@ -6,12 +6,28 @@ import {
 import { getServerSession } from "next-auth";
 import { prisma } from "@/util/db";
 import { nanoid } from "nanoid";
+import { Ratelimit } from "@upstash/ratelimit";
+import { redis } from "@/util/upstash";
+import { headers } from "next/headers";
+
+const ratelimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(1, "20s"),
+});
 
 export const handleSave = async (
   response: string,
   subject: string,
   category: string
 ) => {
+  const ip = headers().get("x-forwarded-for");
+  const { success } = await ratelimit.limit(ip!);
+
+  if (!success)
+    return {
+      ratelimited: "Your template is being saved wait for 20 seconds",
+    };
+
   const session: CustomSession | null = await getServerSession(authOptions);
   try {
     const email = await prisma.email.create({
