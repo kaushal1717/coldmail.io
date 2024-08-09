@@ -126,7 +126,15 @@ const Page: React.FC = () => {
       if (!response.ok) {
         throw new Error("Network error occurred: ");
       }
+
       const result: any = await response.json();
+      if (result.ratelimited) {
+        toast({
+          title: "Rate limit",
+          description: result.ratelimited,
+        });
+        return;
+      }
       const content: string = result?.generator?.choices?.[0]?.message?.content;
       // const splitContent: string[] = content.split("\n");
       // console.log(splitContent);
@@ -193,19 +201,26 @@ const Page: React.FC = () => {
       });
       return;
     }
-    const emailData = await handleSave(responseMessage, subject, category);
+    const emailData: any = await handleSave(responseMessage, subject, category);
+
     if (emailData) {
+      if (emailData.ratelimited) {
+        toast({
+          title: "Rate limited",
+          description: emailData.ratelimited,
+        });
+        return;
+      }
       toast({
         title: "Saved successfully!!",
         description: "Your generated email template has been saved!",
       });
     }
-    console.log(emailData);
   };
 
   return (
     <>
-      <h2 className="flex justify-center items-center text-3xl font-bold tracking-wide">
+      <h2 className="text-2xl flex justify-center items-center sm:text-3xl font-bold sm:tracking-wide">
         Create new template
       </h2>
 
