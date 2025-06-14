@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { groq } from "@/helper/groq.helper";
+import { groq } from "@/lib/groq.helper";
 import { emailFormType } from "@/app/templates/new/page";
 import { headers } from "next/headers";
 import { Ratelimit } from "@upstash/ratelimit";
-import { redis } from "@/util/upstash";
+import { redis } from "@/lib/upstash";
 
 const ratelimit = new Ratelimit({
   redis,

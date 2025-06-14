@@ -1,7 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import Footer from "./footer";
+import Footer from "@/components/common/footer";
 import { v4 as uuidv4 } from "uuid";
 import React, { useEffect, useState } from "react";
 import sha256 from "crypto-js/sha256";
@@ -9,7 +8,6 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { getLimitStatus } from "@/actions/actions";
-import { SquareCheck } from "lucide-react";
 
 export default function Pricing() {
   const router = useRouter();

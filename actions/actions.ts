@@ -4,10 +4,10 @@ import {
   CustomSession,
 } from "@/app/api/auth/[...nextauth]/options";
 import { getServerSession } from "next-auth";
-import { prisma } from "@/util/db";
+import { prisma } from "@/lib/db";
 import { nanoid } from "nanoid";
 import { Ratelimit } from "@upstash/ratelimit";
-import { redis } from "@/util/upstash";
+import { redis } from "@/lib/upstash";
 import { headers } from "next/headers";
 
 const ratelimit = new Ratelimit({

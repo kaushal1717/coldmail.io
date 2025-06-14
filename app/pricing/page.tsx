@@ -1,5 +1,5 @@
-import Header from "@/components/component/header";
-import Pricing from "@/components/component/pricing";
+import Header from "@/components/common/header";
+import Pricing from "@/components/pricing";
 
 export default function page() {
   return (

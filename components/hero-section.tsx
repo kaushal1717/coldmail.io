@@ -1,11 +1,9 @@
 "use client";
 import Link from "next/link";
 import { signIn, useSession } from "next-auth/react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import EmailIllustration from "@/assets/email-illustration.svg";
 import Image from "next/image";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -15,10 +13,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import { Calendar, Layers, Share, ShoppingCart, User } from "lucide-react";
+import { Layers, Share, User } from "lucide-react";
 import { useRouter } from "next/navigation";
-import Header from "./header";
-import Footer from "./footer";
+import Header from "@/components/common/header";
+import Footer from "@/components/common/footer";
 
 export function HeroSection() {
   const router = useRouter();
@@ -93,7 +91,7 @@ export function HeroSection() {
                 alt="Email Template Builder"
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last"
                 height="310"
-                src={EmailIllustration}
+                src="/email.svg"
                 width="550"
               />
               <div className="flex flex-col justify-center space-y-4">
@@ -173,19 +171,6 @@ export function HeroSection() {
               </CardContent>
             </Card>
 
-            {/* <Card>
-              <CardHeader className="flex ">
-                <Calendar className="h-8 w-8 text-blue-500" />
-                <CardTitle>Scheduling</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-500 dark:text-gray-400">
-                  Schedule and launch your email campaigns directly from the
-                  app. Automate your outreach and track your results.
-                </p>
-              </CardContent>
-            </Card> */}
-
             <Card className="hover:shadow-gray-700 shadow-md">
               <CardHeader className="flex ">
                 <User className="h-8 w-8 text-blue-500" />
@@ -214,49 +199,7 @@ export function HeroSection() {
           </div>
         </section>
         <Footer />
-        {/* <section className="w-full py-12 md:py-24 lg:py-32 border-t">
-          <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6">
-            <div className="space-y-3">
-              <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                Ready to Boost Your Cold Outreach?
-              </h2>
-              <p className="mx-auto max-w-[600px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                Sign up today and start creating personalized email templates
-                for your next cold email campaign.
-              </p>
-            </div>
-            <div className="mx-auto w-full max-w-sm space-y-2">
-              <form className="flex space-x-2">
-                <Input
-                  className="max-w-lg flex-1"
-                  placeholder="Enter your email"
-                  type="email"
-                />
-                <Button type="submit">Get Started</Button>
-              </form>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Sign up to start creating email templates.
-                <Link className="underline underline-offset-2" href="#">
-                  Terms & Conditions
-                </Link>
-              </p>
-            </div>
-          </div>
-        </section> */}
       </main>
-      {/* <footer className="flex flex-col gap-2 sm:flex-row py-6 w-full shrink-0 items-center px-4 md:px-6 border-t">
-        <p className="text-xs text-gray-500 dark:text-gray-400">
-          © 2024 Cold Email Generator. All rights reserved.
-        </p>
-        <nav className="sm:ml-auto flex gap-4 sm:gap-6">
-          <Link className="text-xs hover:underline underline-offset-4" href="#">
-            Terms of Service
-          </Link>
-          <Link className="text-xs hover:underline underline-offset-4" href="#">
-            Privacy
-          </Link>
-        </nav>
-      </footer> */}
     </div>
   );
 }
