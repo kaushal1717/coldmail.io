@@ -11,7 +11,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Coldmail.io",
   description: "Personalized Cold Emails Made Easy",
-  metadataBase: new URL(new URL(process.env.NEXTAUTH_URL!)),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL!),
 };
 
 const page = async ({ params }: { params: { id: string } }) => {
