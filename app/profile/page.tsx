@@ -17,7 +17,6 @@ import { Badge } from "@/components/ui/badge";
 import UserInfoSection from "./_components/UserInfoSection";
 import UserStatsSection from "./_components/UserStatsSection";
 import { fetchUserDetails } from "@/actions/actions";
-import { authClient } from "@/lib/authClient";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
