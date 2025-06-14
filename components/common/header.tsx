@@ -22,15 +22,16 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import { authClient } from "@/lib/authClient";
 
 const Header = () => {
-  const { data } = useSession();
+  const { data } = authClient.useSession();
   const router = useRouter();
   const onGoogleSignIn = () => {
-    signIn("google", { callbackUrl: "/templates" });
+    return authClient.signIn.social({ provider: "google" });
   };
   const onGoogleSignOut = () => {
-    signOut({ callbackUrl: "/", redirect: true });
+    return authClient.signOut();
   };
   return (
     <div>

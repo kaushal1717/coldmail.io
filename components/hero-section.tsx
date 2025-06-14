@@ -21,7 +21,7 @@ import { authClient } from "@/lib/authClient";
 
 export function HeroSection() {
   const router = useRouter();
-  const { data } = useSession();
+  const { data } = authClient.useSession();
   const onGoogleSignIn = async () => {
     return await authClient.signIn.social({ provider: "google" });
   };

@@ -6,17 +6,17 @@ import React, { useEffect, useState } from "react";
 import sha256 from "crypto-js/sha256";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { getLimitStatus } from "@/actions/actions";
+import { authClient } from "@/lib/authClient";
 
 export default function Pricing() {
   const router = useRouter();
-  const { data }: any = useSession();
+  const { data } = authClient.useSession();
 
   const [subscriptionInfo, setSubscriptionInfo] = useState<any>();
 
-  const userId = data?.user?.id;
-  console.log(userId);
+  const userId = data?.user?.id!;
+
   const paymentHandler = async (amount: number, userId: string) => {
     const transactionId = "Tr-" + uuidv4().toString().slice(-27);
 
