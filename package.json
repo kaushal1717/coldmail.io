@@ -29,6 +29,7 @@
     "@upstash/redis": "^1.33.0",
     "@vercel/og": "^0.6.2",
     "axios": "^1.6.8",
+    "better-auth": "^1.2.9",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "crypto-js": "^4.2.0",

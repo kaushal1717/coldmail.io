@@ -1,14 +1,10 @@
 "use server";
-import {
-  authOptions,
-  CustomSession,
-} from "@/app/api/auth/[...nextauth]/options";
-import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/db";
 import { nanoid } from "nanoid";
 import { Ratelimit } from "@upstash/ratelimit";
 import { redis } from "@/lib/upstash";
 import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 
 const ratelimit = new Ratelimit({
   redis,
@@ -27,8 +23,8 @@ export const handleSave = async (
     return {
       ratelimited: "Your template is being saved wait for 20 seconds",
     };
+  const session = await auth.api.getSession({ headers: await headers() });
 
-  const session: CustomSession | null = await getServerSession(authOptions);
   try {
     const email = await prisma.email.create({
       data: {
@@ -42,7 +38,7 @@ export const handleSave = async (
 
     const user = await prisma.user.update({
       where: {
-        userId: session?.user?.id!,
+        id: session?.user?.id!,
       },
       data: {
         totalEmails: { increment: 1 },
@@ -54,7 +50,7 @@ export const handleSave = async (
       if (user.totalEmails >= 8 && user.maxCapacity == false) {
         await prisma.user.update({
           where: {
-            userId: session?.user?.id!,
+            id: session?.user?.id!,
           },
           data: {
             maxCapacity: true,
@@ -65,7 +61,7 @@ export const handleSave = async (
       if (user.totalEmails >= 20 && user.maxCapacity == false) {
         await prisma.user.update({
           where: {
-            userId: session?.user?.id!,
+            id: session?.user?.id!,
           },
           data: {
             maxCapacity: true,
@@ -81,7 +77,7 @@ export const handleSave = async (
 };
 
 export const handleGet = async () => {
-  const session: CustomSession | null = await getServerSession(authOptions);
+  const session = await auth.api.getSession({ headers: await headers() });
   try {
     const template = await prisma.user.findMany({
       include: {
@@ -96,7 +92,7 @@ export const handleGet = async () => {
         },
       },
       where: {
-        userId: session?.user?.id!,
+        id: session?.user?.id!,
       },
     });
     return template;
@@ -106,7 +102,7 @@ export const handleGet = async () => {
 };
 
 export const handleDelete = async (emailId: string) => {
-  const session: CustomSession | null = await getServerSession(authOptions);
+  const session = await auth.api.getSession({ headers: await headers() });
   try {
     const deletedItem = await prisma.email.delete({
       where: {
@@ -117,7 +113,7 @@ export const handleDelete = async (emailId: string) => {
     if (deletedItem) {
       await prisma.user.update({
         where: {
-          userId: session?.user?.id,
+          id: session?.user?.id,
         },
         data: {
           savedEmails: {
@@ -168,12 +164,12 @@ export const editTemplate = async (
   }
 };
 
-export const getLimitStatus = async (userId?: string) => {
-  const session: CustomSession | null = await getServerSession(authOptions);
+export const getLimitStatus = async (id?: string) => {
+  const session = await auth.api.getSession({ headers: await headers() });
   try {
     const limitStatus = await prisma.user.findUnique({
       where: {
-        userId: session?.user?.id || userId,
+        id: session?.user?.id || id,
       },
       select: {
         totalEmails: true,
@@ -188,11 +184,11 @@ export const getLimitStatus = async (userId?: string) => {
 };
 
 export const fetchUserDetails = async () => {
-  const session: CustomSession | null = await getServerSession(authOptions);
+  const session = await auth.api.getSession({ headers: await headers() });
   try {
     const userDetails = await prisma.user.findUnique({
       where: {
-        userId: session?.user?.id!,
+        id: session?.user?.id!,
       },
       select: {
         totalEmails: true,
@@ -207,15 +203,12 @@ export const fetchUserDetails = async () => {
   }
 };
 
-export const onPaymentSuccess = async (
-  subscription: string,
-  userId: string
-) => {
+export const onPaymentSuccess = async (subscription: string, id: string) => {
   try {
-    const userLimitStatus = await getLimitStatus(userId);
+    const userLimitStatus = await getLimitStatus(id);
     const user = await prisma.user.update({
       where: {
-        userId: userId,
+        id: id,
       },
       data: {
         subscription: subscription,

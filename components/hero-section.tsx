@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { signIn, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,14 +17,13 @@ import { Layers, Share, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/common/header";
 import Footer from "@/components/common/footer";
+import { authClient } from "@/lib/authClient";
 
 export function HeroSection() {
   const router = useRouter();
   const { data } = useSession();
-  const onGoogleSignIn = () => {
-    signIn("google", {
-      callbackUrl: "/templates",
-    });
+  const onGoogleSignIn = async () => {
+    return await authClient.signIn.social({ provider: "google" });
   };
 
   return (
