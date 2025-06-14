@@ -1,4 +1,4 @@
-import { ProfileLayout } from "@/components/component/profile-layout";
+import { ProfileLayout } from "@/components/profile-layout";
 
 const page = () => {
   return (

@@ -1,5 +1,5 @@
-import Header from "@/components/component/header";
-import Terms from "@/components/component/terms";
+import Header from "@/components/common/header";
+import Terms from "@/components/terms";
 import { SkeletonTheme } from "react-loading-skeleton";
 export default function TemplateCreateLayout({
   children,

@@ -1,6 +1,7 @@
 import { handleGetWithUniqueId } from "@/actions/actions";
-import CopyButton from "@/components/component/CopyButton";
-import SaveButton from "@/components/component/SaveButton";
+import CopyButton from "@/components/buttons/CopyButton";
+import SaveButton from "@/components/buttons/SaveButton";
+
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { MailboxIcon } from "lucide-react";

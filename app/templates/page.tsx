@@ -41,8 +41,8 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
-import LoadingSkeleton from "@/components/component/loading-skeleton";
 import { Input } from "@/components/ui/input";
+import LoadingSkeleton from "@/components/common/loading-skeleton";
 
 export default function Component() {
   const { toast } = useToast();
