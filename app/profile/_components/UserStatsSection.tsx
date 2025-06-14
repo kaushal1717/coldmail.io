@@ -3,12 +3,6 @@ export default function UserStatsSection({
 }: {
   user: { savedEmails?: number; subscription?: string; totalEmails?: number };
 }) {
-  if (
-    typeof user?.savedEmails !== "number" &&
-    !user?.subscription &&
-    typeof user?.totalEmails !== "number"
-  )
-    return null;
   const checkStatus = () => {
     if (user?.subscription === "free") return 8;
     if (user?.subscription === "pro") return 20;

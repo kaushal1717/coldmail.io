@@ -2,20 +2,19 @@
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/common/footer";
 import { v4 as uuidv4 } from "uuid";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import sha256 from "crypto-js/sha256";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { getLimitStatus } from "@/actions/actions";
-import { authClient } from "@/lib/authClient";
 
-export default function Pricing() {
+export default function Pricing({
+  subscriptionInfo,
+  userId,
+}: {
+  subscriptionInfo: string | undefined;
+  userId: string | undefined;
+}) {
   const router = useRouter();
-  const { data } = authClient.useSession();
-
-  const [subscriptionInfo, setSubscriptionInfo] = useState<any>();
-
-  const userId = data?.user?.id!;
 
   const paymentHandler = async (amount: number, userId: string) => {
     const transactionId = "Tr-" + uuidv4().toString().slice(-27);
@@ -62,19 +61,6 @@ export default function Pricing() {
     const redirect = response.data.data.instrumentResponse.redirectInfo.url;
     router.push(redirect);
   };
-
-  useEffect(() => {
-    const getUserSubscription = async () => {
-      try {
-        const result = await getLimitStatus();
-        const subscription = result?.subscription;
-        setSubscriptionInfo(subscription);
-      } catch (error) {
-        console.log("Error : ", error);
-      }
-    };
-    getUserSubscription();
-  }, []);
 
   return (
     <>
@@ -129,7 +115,7 @@ export default function Pricing() {
               <Button
                 className="w-full"
                 onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                  paymentHandler(99, userId);
+                  if (userId) paymentHandler(99, userId);
                 }}
                 disabled={subscriptionInfo == "pro"}
               >
@@ -153,7 +139,7 @@ export default function Pricing() {
               </ul>
               <Button
                 className="w-full"
-                onClick={() => paymentHandler(149, userId)}
+                onClick={() => userId && paymentHandler(149, userId)}
                 disabled={subscriptionInfo == "premium"}
               >
                 {subscriptionInfo == "premium" ? "Current plan" : "Get started"}
@@ -164,24 +150,5 @@ export default function Pricing() {
       </section>
       <Footer />
     </>
-  );
-}
-
-function CheckIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M20 6 9 17l-5-5" />
-    </svg>
   );
 }
