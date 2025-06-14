@@ -1,10 +1,11 @@
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
-export default function UserInfoSection({
-  user,
-}: {
-  user: { name?: string; email?: string; image?: string };
-}) {
+export default async function UserInfoSection() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  const user = session?.user;
+
   if (!user?.name && !user?.email && !user?.image) return null;
   return (
     <div className="flex items-center gap-4">
