@@ -1,11 +1,4 @@
-import { z } from "zod";
-import {
-  useForm,
-  useFieldArray,
-  SubmitHandler,
-  useFormContext,
-} from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useFormContext } from "react-hook-form";
 import { emailFormType } from "@/app/shared/EmailFormSchema";
 
 function MessageTonesSection() {

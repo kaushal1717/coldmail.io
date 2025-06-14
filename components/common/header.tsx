@@ -1,7 +1,7 @@
 "use client";
 import { LogOutIcon, MailboxIcon, User2 } from "lucide-react";
 import Link from "next/link";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 
 import Image from "next/image";
 import { signIn, signOut, useSession } from "next-auth/react";
@@ -13,11 +13,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,

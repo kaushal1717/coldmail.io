@@ -1,9 +1,9 @@
 "use client";
 
 import { signIn, useSession } from "next-auth/react";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import { handleSave } from "@/actions/actions";
-import { useToast } from "../ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 
 const SaveButton = ({

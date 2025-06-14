@@ -1,5 +1,5 @@
 import GoogleProvider from "next-auth/providers/google";
-import { prisma } from "@/util/db";
+import { prisma } from "@/lib/db";
 import { ISODateString, User } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import { Session } from "next-auth";
