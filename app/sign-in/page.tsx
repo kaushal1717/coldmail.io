@@ -1,9 +1,11 @@
 "use client";
 import { useEffect } from "react";
-import { signIn } from "next-auth/react";
+import { authClient } from "@/lib/authClient";
 export default function SignIn() {
   useEffect(() => {
-    signIn("google");
+    authClient.signIn.social({
+      provider: "google",
+    });
   }, []);
   return <div>Redirecting to sign in...</div>;
 }
