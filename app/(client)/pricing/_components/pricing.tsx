@@ -6,6 +6,7 @@ import React from "react";
 import sha256 from "crypto-js/sha256";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { loadRazorpayScript } from "@/lib/razorpay-client";
 
 export default function Pricing({
   subscriptionInfo,
@@ -14,52 +15,44 @@ export default function Pricing({
   subscriptionInfo: string | undefined;
   userId: string | undefined;
 }) {
-  const router = useRouter();
 
   const paymentHandler = async (amount: number, userId: string) => {
-    const transactionId = "Tr-" + uuidv4().toString().slice(-27);
+    const res = await loadRazorpayScript();
+    if (!res) {
+      alert("Razorpay SDK failed to load. Are you online?");
+      return;
+    }
 
-    const payload = {
-      merchantId: process.env.NEXT_PUBLIC_MERCHANT_ID,
-      merchantTransactionId: transactionId,
-      merchantUserId: userId,
-      amount: amount * 100,
-      redirectUrl: `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/payment-status?userId=${userId}`,
-      redirectMode: "POST",
-      callbackUrl: `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/payment-status?userId=${userId}`,
-      mobileNumber: "9999999999",
-      paymentInstrument: {
-        type: "PAY_PAGE",
-      },
-    };
-    const dataPayload = JSON.stringify(payload);
-    console.log("Payload in json : " + dataPayload);
+    const orderRes = await fetch("/api/razorpay-order", {
+      method: "POST",
+      body: JSON.stringify({ amount, userId }),
+      headers: { "Content-Type": "application/json" },
+    });
 
-    const dataBase64 = Buffer.from(dataPayload).toString("base64");
-    console.log("base64 Payload : " + dataBase64);
-
-    const fullURL =
-      dataBase64 + "/pg/v1/pay" + process.env.NEXT_PUBLIC_SALT_KEY;
-    const dataSha256 = sha256(fullURL);
-
-    const checksum = dataSha256 + "###" + process.env.NEXT_PUBLIC_SALT_INDEX;
-    console.log("c====", checksum);
+    const { orderId } = await orderRes.json();
 
     const options = {
-      method: "POST",
-      url: `${process.env.NEXT_PUBLIC_UAT_PAY_API_URL}/pay`,
-      headers: {
-        accept: "application/json",
-        "Content-Type": "application/json",
-        "X-VERIFY": checksum,
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
+      amount: amount * 100,
+      currency: "INR",
+      name: "Coldmail.io",
+      description: "Subscription Payment",
+      image: "/logo.svg",
+      order_id: orderId,
+      handler: async function (response: any) {
+        // hit a server API to confirm payment and activate subscription
+        console.log("Payment Success", response);
       },
-      data: {
-        request: dataBase64,
+      prefill: {
+        name: "User",
+        email: "user@example.com",
+        contact: "9999999999",
       },
+      theme: { color: "#6366f1" },
     };
-    let response = await axios.request(options);
-    const redirect = response.data.data.instrumentResponse.redirectInfo.url;
-    router.push(redirect);
+
+    const paymentObject = new window.Razorpay(options);
+    paymentObject.open();
   };
 
   return (
