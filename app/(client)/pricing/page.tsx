@@ -1,8 +1,8 @@
 import Header from "@/components/common/header";
-import Pricing from "@/app/pricing/_components/pricing";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { fetchUserDetails } from "@/actions/actions";
+import Pricing from "./_components/pricing";
 
 export default async function Page() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -12,7 +12,6 @@ export default async function Page() {
 
   return (
     <div>
-      <Header />
       <Pricing subscriptionInfo={subscriptionInfo} userId={userId} />
     </div>
   );
