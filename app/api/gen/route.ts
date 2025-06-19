@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { groq } from "@/lib/groq.helper";
-import { emailFormType } from "@/app/templates/new/page";
+import { emailFormType } from "@/app/(client)/templates/new/page";
 import { headers } from "next/headers";
 import { Ratelimit } from "@upstash/ratelimit";
 import { redis } from "@/lib/upstash";
