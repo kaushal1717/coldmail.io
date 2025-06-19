@@ -1,4 +1,3 @@
-import Header from "@/components/common/header";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { fetchUserDetails } from "@/actions/actions";
@@ -12,7 +11,7 @@ export default async function Page() {
 
   return (
     <div>
-      <Pricing subscriptionInfo={subscriptionInfo} userId={userId} />
+      <Pricing initialSubscriptionInfo={subscriptionInfo} userId={userId} />
     </div>
   );
 }

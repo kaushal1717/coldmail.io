@@ -1,6 +1,7 @@
 // app/api/razorpay-order/route.ts
 import Razorpay from "razorpay";
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,
@@ -10,12 +11,16 @@ const razorpay = new Razorpay({
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { amount, userId } = body;
-
+    const { amount, userId, metadata } = body;
+    const receipt = crypto.randomUUID();
     const order = await razorpay.orders.create({
-      amount: amount * 100, // amount in paise
+      amount: amount * 100,
       currency: "INR",
-      receipt: `receipt_order_${userId}`,
+      receipt,
+      notes: {
+        userId,
+        ...(metadata || {}),
+      },
     });
 
     return NextResponse.json({ orderId: order.id });

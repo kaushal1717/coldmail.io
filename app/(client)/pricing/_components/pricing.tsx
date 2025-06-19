@@ -1,22 +1,24 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import Footer from "@/components/common/footer";
-import { v4 as uuidv4 } from "uuid";
-import React from "react";
-import sha256 from "crypto-js/sha256";
-import axios from "axios";
-import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 import { loadRazorpayScript } from "@/lib/razorpay-client";
-
+import { useToast } from "@/components/ui/use-toast";
 export default function Pricing({
-  subscriptionInfo,
+  initialSubscriptionInfo,
   userId,
 }: {
-  subscriptionInfo: string | undefined;
+  initialSubscriptionInfo: string | undefined;
   userId: string | undefined;
 }) {
-
-  const paymentHandler = async (amount: number, userId: string) => {
+  const { toast } = useToast();
+  const [subscriptionInfo, setSubscriptionInfo] = useState<string | undefined>(
+    initialSubscriptionInfo
+  );
+  const paymentHandler = async (
+    amount: number,
+    userId: string,
+    metadata?: Record<string, any>
+  ) => {
     const res = await loadRazorpayScript();
     if (!res) {
       alert("Razorpay SDK failed to load. Are you online?");
@@ -25,11 +27,19 @@ export default function Pricing({
 
     const orderRes = await fetch("/api/razorpay-order", {
       method: "POST",
-      body: JSON.stringify({ amount, userId }),
+      body: JSON.stringify({ amount, userId, metadata }),
       headers: { "Content-Type": "application/json" },
     });
 
     const { orderId } = await orderRes.json();
+
+    if (!orderId) {
+      toast({
+        title: "Error",
+        description: "Failed to create order",
+      });
+      return;
+    }
 
     const options = {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
@@ -40,13 +50,18 @@ export default function Pricing({
       image: "/logo.svg",
       order_id: orderId,
       handler: async function (response: any) {
-        // hit a server API to confirm payment and activate subscription
-        console.log("Payment Success", response);
-      },
-      prefill: {
-        name: "User",
-        email: "user@example.com",
-        contact: "9999999999",
+        const res = await fetch("/api/subscription-status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId }),
+        });
+
+        const data = await res.json();
+        setSubscriptionInfo(data.subscription);
+        toast({
+          title: "Payment Successful",
+          description: `Your subscription has been activated for ${response?.razorpay_payment_id}`,
+        });
       },
       theme: { color: "#6366f1" },
     };
@@ -108,7 +123,7 @@ export default function Pricing({
               <Button
                 className="w-full"
                 onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                  if (userId) paymentHandler(99, userId);
+                  if (userId) paymentHandler(99, userId, { plan: "pro" });
                 }}
                 disabled={subscriptionInfo == "pro"}
               >
@@ -132,7 +147,9 @@ export default function Pricing({
               </ul>
               <Button
                 className="w-full"
-                onClick={() => userId && paymentHandler(149, userId)}
+                onClick={() =>
+                  userId && paymentHandler(149, userId, { plan: "premium" })
+                }
                 disabled={subscriptionInfo == "premium"}
               >
                 {subscriptionInfo == "premium" ? "Current plan" : "Get started"}
@@ -141,7 +158,6 @@ export default function Pricing({
           </div>
         </div>
       </section>
-      <Footer />
     </>
   );
 }
