@@ -1,74 +1,61 @@
 "use server";
 import { prisma } from "@/lib/db";
 import { nanoid } from "nanoid";
-import { Ratelimit } from "@upstash/ratelimit";
-import { redis } from "@/lib/upstash";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-
-const ratelimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(1, "20s"),
-});
 
 export const handleSave = async (
   response: string,
   subject: string,
   category: string
 ) => {
-  const ip = headers().get("x-forwarded-for");
-  const { success } = await ratelimit.limit(ip!);
-
-  if (!success)
-    return {
-      ratelimited: "Your template is being saved wait for 20 seconds",
-    };
   const session = await auth.api.getSession({ headers: await headers() });
 
   try {
-    const email = await prisma.email.create({
-      data: {
-        authorId: session?.user?.id!,
-        content: response,
-        subject: subject,
-        category: category,
-        uniqueIdentifier: nanoid(),
-      },
+    // Fetch user once
+    const user = await prisma.user.findUnique({
+      where: { id: session?.user?.id! },
+      select: { subscription: true, totalEmails: true, maxCapacity: true },
     });
 
-    const user = await prisma.user.update({
-      where: {
-        id: session?.user?.id!,
-      },
-      data: {
-        totalEmails: { increment: 1 },
-        savedEmails: { increment: 1 },
-      },
-    });
+    // Calculate new values
+    let newTotalEmails = (user?.totalEmails ?? 0) + 1;
+    let newMaxCapacity = user?.maxCapacity ?? false;
 
-    if (user.subscription == "free") {
-      if (user.totalEmails >= 8 && user.maxCapacity == false) {
-        await prisma.user.update({
-          where: {
-            id: session?.user?.id!,
-          },
-          data: {
-            maxCapacity: true,
-          },
-        });
-      }
-    } else if (user.subscription == "pro") {
-      if (user.totalEmails >= 20 && user.maxCapacity == false) {
-        await prisma.user.update({
-          where: {
-            id: session?.user?.id!,
-          },
-          data: {
-            maxCapacity: true,
-          },
-        });
-      }
+    if (
+      user?.subscription === "free" &&
+      newTotalEmails >= 8 &&
+      !user.maxCapacity
+    ) {
+      newMaxCapacity = true;
+    } else if (
+      user?.subscription === "pro" &&
+      newTotalEmails >= 20 &&
+      !user.maxCapacity
+    ) {
+      newMaxCapacity = true;
     }
+
+    // Transaction: create email and update user in one go
+    const [email] = await prisma.$transaction([
+      prisma.email.create({
+        data: {
+          authorId: session?.user?.id!,
+          content: response,
+          subject: subject,
+          category: category,
+          uniqueIdentifier: nanoid(),
+        },
+      }),
+      prisma.user.update({
+        where: { id: session?.user?.id! },
+        data: {
+          totalEmails: newTotalEmails,
+          savedEmails: { increment: 1 },
+          maxCapacity: newMaxCapacity,
+        },
+      }),
+    ]);
 
     return email;
   } catch (error) {

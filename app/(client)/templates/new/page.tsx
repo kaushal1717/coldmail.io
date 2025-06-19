@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import React, { useState } from "react";
-import { Plus, PlusCircle, Trash2, X } from "lucide-react";
+import { Plus, PlusCircle, Trash2, X, Loader2 } from "lucide-react";
 import {
   FormProvider,
   SubmitHandler,
@@ -39,9 +39,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { getLimitStatus, handleSave } from "@/actions/actions";
-import { log } from "console";
+import { handleSave } from "@/actions/actions";
 import clsx from "clsx";
+import { models } from "@/lib/constants";
 
 // Zod schema definition for form validation
 const emailFormSchema = z.object({
@@ -70,6 +70,7 @@ const emailFormSchema = z.object({
     )
     .max(4, "You can add up to 4 social links"),
   skills: z.string().min(1, "Skills/USP is required"),
+  model: z.string().min(1, "Model is required"),
 });
 
 export type emailFormType = z.infer<typeof emailFormSchema>;
@@ -81,9 +82,11 @@ const Page: React.FC = () => {
   const [subject, setSubject] = useState<string>("");
   const [category, setCategory] = useState<string>("");
   const [selectedValue, setSelectedValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [selectedModel, setSelectedModel] = useState(models[0].id);
 
   const handleValueChange = (value: any) => {
-    console.log(value);
     setSelectedValue(value);
     methods.setValue("emailTone", value);
   };
@@ -102,54 +105,46 @@ const Page: React.FC = () => {
   });
 
   const onSubmit: SubmitHandler<emailFormType> = async (data) => {
-    console.log("Form submitted:", data);
-    const limitStatus = await getLimitStatus();
-    //plans verification
-
-    if (limitStatus?.maxCapacity == true) {
-      toast({
-        title: "Limit exceeded",
-        description: "upgrade your plan to generate",
-      });
-      return;
-    }
-
-    //plan verification end
     try {
+      setIsLoading(true);
+      setResponseMessage("");
       const response = await fetch("/api/gen", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, model: selectedModel }),
       });
       if (!response.ok) {
+        setIsLoading(false);
         throw new Error("Network error occurred: ");
       }
 
-      const result: any = await response.json();
-      if (result.ratelimited) {
-        toast({
-          title: "Rate limit",
-          description: result.ratelimited,
-        });
+      if (!response.body) {
+        setIsLoading(false);
+        setResponseMessage("No response body");
         return;
       }
-      const content: string = result?.generator?.choices?.[0]?.message?.content;
-      // const splitContent: string[] = content.split("\n");
-      // console.log(splitContent);
-      // let modifiedContent: string = splitContent.slice(2).join("\n");
-      if (content) {
-        setResponseMessage(content);
-        setSubject(data.subject);
-        setCategory(data.emailPurpose);
-      } else {
-        setResponseMessage(
-          "Either API key is expired or any internal error occurred"
-        );
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+      let fullText = "";
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        if (value) {
+          const chunk = decoder.decode(value);
+          fullText += chunk;
+          setResponseMessage(fullText);
+        }
       }
+      setIsLoading(false);
+      setSubject(data.subject);
+      setCategory(data.emailPurpose);
     } catch (error) {
       console.log("Error generated while fetching response: ", error);
+      setIsLoading(false);
       setResponseMessage("Failed to generate email");
     }
   };
@@ -193,28 +188,21 @@ const Page: React.FC = () => {
   };
 
   const onSave = async () => {
-    const limitStatus = await getLimitStatus();
-    if (limitStatus?.maxCapacity == true) {
-      toast({
-        title: "Limit exceeded",
-        description: "upgrade your plan to generate",
-      });
-      return;
-    }
-    const emailData: any = await handleSave(responseMessage, subject, category);
-
-    if (emailData) {
-      if (emailData.ratelimited) {
+    setIsSaving(true);
+    try {
+      const emailData: any = await handleSave(
+        responseMessage,
+        subject,
+        category
+      );
+      if (emailData) {
         toast({
-          title: "Rate limited",
-          description: emailData.ratelimited,
+          title: "Saved successfully!!",
+          description: "Your generated email template has been saved!",
         });
-        return;
       }
-      toast({
-        title: "Saved successfully!!",
-        description: "Your generated email template has been saved!",
-      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -406,9 +394,36 @@ const Page: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex justify-end">
-                <Button type="submit" className="text-md bg-gray-300">
-                  Generate
+              <div className="flex justify-end items-center gap-2">
+                <Select
+                  value={selectedModel}
+                  onValueChange={setSelectedModel}
+                  disabled={isLoading}
+                >
+                  <SelectTrigger className="w-[260px]">
+                    <SelectValue placeholder="Select model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {models.map((model) => (
+                      <SelectItem key={model.id} value={model.id}>
+                        {model.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  type="submit"
+                  className="text-md bg-gray-300"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="animate-spin h-5 w-5 text-gray-600" />
+                      Generating...
+                    </span>
+                  ) : (
+                    "Generate"
+                  )}
                 </Button>
               </div>
             </form>
@@ -437,9 +452,16 @@ const Page: React.FC = () => {
               <Button
                 variant="outline"
                 onClick={onSave}
-                disabled={responseMessage ? false : true}
+                disabled={responseMessage ? false : true || isSaving}
               >
-                Save
+                {isSaving ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="animate-spin h-4 w-4 text-gray-600" />
+                    Saving...
+                  </span>
+                ) : (
+                  "Save"
+                )}
               </Button>
               <Button
                 variant="outline"

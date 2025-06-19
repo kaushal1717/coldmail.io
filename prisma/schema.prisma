@@ -25,6 +25,7 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
+  
   @@map("user")
 }
 
@@ -36,6 +37,7 @@ model Email {
   category         String
   subject          String
   uniqueIdentifier String
+  @@index([authorId])
 }
 
 model Session {

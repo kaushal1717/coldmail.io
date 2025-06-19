@@ -1,5 +1,6 @@
-import Groq from "groq-sdk";
+import OpenAI from "openai";
 
-export const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY as string,
+export const groq = new OpenAI({
+  apiKey: process.env.GROQ_API_KEY,
+  baseURL: "https://api.groq.com/openai/v1",
 });
