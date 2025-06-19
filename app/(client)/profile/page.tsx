@@ -18,14 +18,10 @@ import UserInfoSection from "./_components/UserInfoSection";
 import UserStatsSection from "./_components/UserStatsSection";
 import SectionLoader from "./_components/SectionLoader";
 import { Suspense } from "react";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { fetchUserDetails } from "@/actions/actions";
 
 export default async function ProfilePage() {
-  const session = await auth.api.getSession({ headers: await headers() });
   const user = await fetchUserDetails();
-
   return (
     <div className="w-full space-y-4  grid grid-cols-1 m-2 md:grid-cols-1 lg:grid-cols-2">
       <Card className="col-span-2 md:flex items-center p-6">
