@@ -1,78 +1,61 @@
 "use server";
-import {
-  authOptions,
-  CustomSession,
-} from "@/app/api/auth/[...nextauth]/options";
-import { getServerSession } from "next-auth";
-import { prisma } from "@/util/db";
+import { prisma } from "@/lib/db";
 import { nanoid } from "nanoid";
-import { Ratelimit } from "@upstash/ratelimit";
-import { redis } from "@/util/upstash";
 import { headers } from "next/headers";
-
-const ratelimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(1, "20s"),
-});
+import { auth } from "@/lib/auth";
 
 export const handleSave = async (
   response: string,
   subject: string,
   category: string
 ) => {
-  const ip = headers().get("x-forwarded-for");
-  const { success } = await ratelimit.limit(ip!);
+  const session = await auth.api.getSession({ headers: await headers() });
 
-  if (!success)
-    return {
-      ratelimited: "Your template is being saved wait for 20 seconds",
-    };
-
-  const session: CustomSession | null = await getServerSession(authOptions);
   try {
-    const email = await prisma.email.create({
-      data: {
-        authorId: session?.user?.id!,
-        content: response,
-        subject: subject,
-        category: category,
-        uniqueIdentifier: nanoid(),
-      },
+    // Fetch user once
+    const user = await prisma.user.findUnique({
+      where: { id: session?.user?.id! },
+      select: { subscription: true, totalEmails: true, maxCapacity: true },
     });
 
-    const user = await prisma.user.update({
-      where: {
-        userId: session?.user?.id!,
-      },
-      data: {
-        totalEmails: { increment: 1 },
-        savedEmails: { increment: 1 },
-      },
-    });
+    // Calculate new values
+    let newTotalEmails = (user?.totalEmails ?? 0) + 1;
+    let newMaxCapacity = user?.maxCapacity ?? false;
 
-    if (user.subscription == "free") {
-      if (user.totalEmails >= 8 && user.maxCapacity == false) {
-        await prisma.user.update({
-          where: {
-            userId: session?.user?.id!,
-          },
-          data: {
-            maxCapacity: true,
-          },
-        });
-      }
-    } else if (user.subscription == "pro") {
-      if (user.totalEmails >= 20 && user.maxCapacity == false) {
-        await prisma.user.update({
-          where: {
-            userId: session?.user?.id!,
-          },
-          data: {
-            maxCapacity: true,
-          },
-        });
-      }
+    if (
+      user?.subscription === "free" &&
+      newTotalEmails >= 8 &&
+      !user.maxCapacity
+    ) {
+      newMaxCapacity = true;
+    } else if (
+      user?.subscription === "pro" &&
+      newTotalEmails >= 20 &&
+      !user.maxCapacity
+    ) {
+      newMaxCapacity = true;
     }
+
+    // Transaction: create email and update user in one go
+    const [email] = await prisma.$transaction([
+      prisma.email.create({
+        data: {
+          authorId: session?.user?.id!,
+          content: response,
+          subject: subject,
+          category: category,
+          uniqueIdentifier: nanoid(),
+        },
+      }),
+      prisma.user.update({
+        where: { id: session?.user?.id! },
+        data: {
+          totalEmails: newTotalEmails,
+          savedEmails: { increment: 1 },
+          maxCapacity: newMaxCapacity,
+        },
+      }),
+    ]);
 
     return email;
   } catch (error) {
@@ -81,7 +64,7 @@ export const handleSave = async (
 };
 
 export const handleGet = async () => {
-  const session: CustomSession | null = await getServerSession(authOptions);
+  const session = await auth.api.getSession({ headers: await headers() });
   try {
     const template = await prisma.user.findMany({
       include: {
@@ -96,7 +79,7 @@ export const handleGet = async () => {
         },
       },
       where: {
-        userId: session?.user?.id!,
+        id: session?.user?.id!,
       },
     });
     return template;
@@ -106,7 +89,7 @@ export const handleGet = async () => {
 };
 
 export const handleDelete = async (emailId: string) => {
-  const session: CustomSession | null = await getServerSession(authOptions);
+  const session = await auth.api.getSession({ headers: await headers() });
   try {
     const deletedItem = await prisma.email.delete({
       where: {
@@ -117,7 +100,7 @@ export const handleDelete = async (emailId: string) => {
     if (deletedItem) {
       await prisma.user.update({
         where: {
-          userId: session?.user?.id,
+          id: session?.user?.id,
         },
         data: {
           savedEmails: {
@@ -168,12 +151,12 @@ export const editTemplate = async (
   }
 };
 
-export const getLimitStatus = async (userId?: string) => {
-  const session: CustomSession | null = await getServerSession(authOptions);
+export const getLimitStatus = async (id?: string) => {
+  const session = await auth.api.getSession({ headers: await headers() });
   try {
     const limitStatus = await prisma.user.findUnique({
       where: {
-        userId: session?.user?.id || userId,
+        id: session?.user?.id || id,
       },
       select: {
         totalEmails: true,
@@ -188,11 +171,11 @@ export const getLimitStatus = async (userId?: string) => {
 };
 
 export const fetchUserDetails = async () => {
-  const session: CustomSession | null = await getServerSession(authOptions);
+  const session = await auth.api.getSession({ headers: await headers() });
   try {
     const userDetails = await prisma.user.findUnique({
       where: {
-        userId: session?.user?.id!,
+        id: session?.user?.id!,
       },
       select: {
         totalEmails: true,
@@ -207,15 +190,12 @@ export const fetchUserDetails = async () => {
   }
 };
 
-export const onPaymentSuccess = async (
-  subscription: string,
-  userId: string
-) => {
+export const onPaymentSuccess = async (subscription: string, id: string) => {
   try {
-    const userLimitStatus = await getLimitStatus(userId);
+    const userLimitStatus = await getLimitStatus(id);
     const user = await prisma.user.update({
       where: {
-        userId: userId,
+        id: id,
       },
       data: {
         subscription: subscription,
