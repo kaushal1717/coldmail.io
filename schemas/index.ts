@@ -20,12 +20,12 @@ export const emailFormSchema = z.object({
   socialLinks: z
     .array(
       z.object({
-        platform: z.string().min(1, "This field is required"),
-        link: z.string().url("Invalid URL"),
+        platform: z.string(),
+        link: z.string(),
       })
     )
     .max(4, "You can add up to 4 social links"),
-  skills: z.string().min(1, "Skills/USP is required"),
+  skills: z.string().optional(),
 });
 
 export type emailFormType = z.infer<typeof emailFormSchema>;

@@ -7,11 +7,28 @@ import { auth } from "@/lib/auth";
 export const handleSave = async (
   response: string,
   subject: string,
-  category: string
+  category: string,
+  workspaceId?: string
 ) => {
   const session = await auth.api.getSession({ headers: await headers() });
 
   try {
+    // If workspaceId is provided, verify user has access to this workspace
+    if (workspaceId) {
+      const memberCheck = await prisma.workspaceMember.findUnique({
+        where: {
+          userId_workspaceId: {
+            userId: session?.user?.id!,
+            workspaceId: workspaceId,
+          },
+        },
+      });
+
+      if (!memberCheck) {
+        throw new Error("You don't have access to this workspace");
+      }
+    }
+
     // Fetch user once
     const user = await prisma.user.findUnique({
       where: { id: session?.user?.id! },
@@ -45,6 +62,8 @@ export const handleSave = async (
           subject: subject,
           category: category,
           uniqueIdentifier: nanoid(),
+          workspaceId: workspaceId || null,
+          isPublic: workspaceId ? true : false,
         },
       }),
       prisma.user.update({
@@ -60,6 +79,7 @@ export const handleSave = async (
     return email;
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
 
