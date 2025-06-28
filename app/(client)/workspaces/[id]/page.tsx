@@ -174,6 +174,11 @@ async function WorkspaceContent({ id }: { id: string }) {
                 Create Email
               </Button>
             </Link>
+            <Link href={`/workspaces/${workspace.id}/emails`}>
+              <Button variant="outline" size="sm" className="w-full">
+                View All Emails
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       </div>
