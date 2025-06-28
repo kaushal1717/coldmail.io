@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -9,20 +9,37 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Search,
   Mail,
-  Calendar,
   Eye,
   Edit,
   Copy,
   MoreHorizontal,
   FileText,
   Clock,
+  Trash2,
 } from "lucide-react";
+import { RequestReviewForm } from "./RequestReviewForm";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal,
+  DropdownMenuSubContent,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   Pagination,
   PaginationContent,
@@ -73,16 +90,43 @@ interface WorkspaceEmailListProps {
 
 export function WorkspaceEmailList({ workspaceId }: WorkspaceEmailListProps) {
   const [emails, setEmails] = useState<Email[]>([]);
+  const [members, setMembers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState<PaginationData | null>(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const { toast } = useToast();
 
   useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500); // 500ms debounce time
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchQuery]);
+
+  useEffect(() => {
     fetchEmails();
-  }, [searchQuery, currentPage]);
+    fetchMembers();
+  }, [debouncedSearchQuery, currentPage]);
+
+  const fetchMembers = async () => {
+    try {
+      const response = await fetch(`/api/workspaces/${workspaceId}/members`);
+      if (response.ok) {
+        const data = await response.json();
+        setMembers(data);
+      }
+    } catch (error) {
+      console.error("Error fetching members:", error);
+    }
+  };
 
   const fetchEmails = async () => {
     try {
@@ -90,7 +134,7 @@ export function WorkspaceEmailList({ workspaceId }: WorkspaceEmailListProps) {
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: "10",
-        ...(searchQuery && { search: searchQuery }),
+        ...(debouncedSearchQuery && { search: debouncedSearchQuery }),
       });
 
       const response = await fetch(
@@ -117,6 +161,9 @@ export function WorkspaceEmailList({ workspaceId }: WorkspaceEmailListProps) {
       });
     } finally {
       setIsLoading(false);
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
     }
   };
 
@@ -144,6 +191,35 @@ export function WorkspaceEmailList({ workspaceId }: WorkspaceEmailListProps) {
       duplicate: email.id,
     });
     router.push(`/templates/new?${params}`);
+  };
+
+  const deleteEmail = async (emailId: string) => {
+    try {
+      const response = await fetch(`/api/emails/${emailId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Email deleted",
+          description: "The email has been successfully deleted.",
+        });
+        fetchEmails(); // Refresh the list
+      } else {
+        const error = await response.json();
+        toast({
+          title: "Error",
+          description: error.error || "Failed to delete email",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete email",
+        variant: "destructive",
+      });
+    }
   };
 
   const getEmailStatus = (email: Email) => {
@@ -213,6 +289,7 @@ export function WorkspaceEmailList({ workspaceId }: WorkspaceEmailListProps) {
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
             className="pl-10"
+            ref={inputRef}
           />
         </div>
       </div>
@@ -279,7 +356,10 @@ export function WorkspaceEmailList({ workspaceId }: WorkspaceEmailListProps) {
                       </div>
                     </div>
 
-                    <DropdownMenu>
+                    <DropdownMenu
+                      open={dropdownOpen}
+                      onOpenChange={setDropdownOpen}
+                    >
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="sm">
                           <MoreHorizontal className="w-4 h-4" />
@@ -306,6 +386,54 @@ export function WorkspaceEmailList({ workspaceId }: WorkspaceEmailListProps) {
                           <Copy className="w-4 h-4 mr-2" />
                           Copy ID
                         </DropdownMenuItem>
+                        <DropdownMenuSub>
+                          <DropdownMenuSubTrigger>
+                            <Mail className="w-4 h-4 mr-2" />
+                            Request Review
+                          </DropdownMenuSubTrigger>
+                          <DropdownMenuPortal>
+                            <DropdownMenuSubContent>
+                              <RequestReviewForm
+                                emailId={email.id}
+                                workspaceId={workspaceId}
+                                members={members}
+                                setOpen={(open: boolean) =>
+                                  setDropdownOpen(open)
+                                }
+                              />
+                            </DropdownMenuSubContent>
+                          </DropdownMenuPortal>
+                        </DropdownMenuSub>
+                        <DropdownMenuSeparator />
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <DropdownMenuItem
+                              onSelect={(e) => e.preventDefault()}
+                              className="text-red-600 focus:text-red-600"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Email</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete "{email.subject}
+                                "? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteEmail(email.id)}
+                                className="bg-red-600 hover:bg-red-700"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>

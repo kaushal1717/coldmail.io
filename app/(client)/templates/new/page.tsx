@@ -439,7 +439,7 @@ const TemplateForm: React.FC = () => {
                 <Textarea
                   value={responseMessage}
                   onChange={(e) => setResponseMessage(e.target.value)}
-                  className="min-h-[400px] resize-none"
+                  className="min-h-[calc(100vh-200px)] resize-none"
                 />
 
                 <div className="flex gap-2 flex-wrap">

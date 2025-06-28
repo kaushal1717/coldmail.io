@@ -53,33 +53,37 @@ export function AddMemberForm({ workspaceId }: AddMemberFormProps) {
   const onSubmit = async (data: AddMemberFormData) => {
     setIsAdding(true);
     try {
-      const response = await fetch(`/api/workspaces/${workspaceId}/members`, {
+      const response = await fetch(`/api/workspace-invitations`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          email: data.email,
+          workspaceId,
+          role: data.role,
+        }),
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Failed to add member");
+        throw new Error(result.error || "Failed to send invitation");
       }
 
       toast({
-        title: "Member added!",
-        description: `${result.user.name} has been added to the workspace.`,
+        title: "Invitation sent!",
+        description: `An invitation has been sent to ${data.email}.`,
       });
 
       reset();
       router.refresh();
     } catch (error) {
-      console.error("Error adding member:", error);
+      console.error("Error sending invitation:", error);
       toast({
         title: "Error",
         description:
-          error instanceof Error ? error.message : "Failed to add member",
+          error instanceof Error ? error.message : "Failed to send invitation",
         variant: "destructive",
       });
     } finally {
@@ -127,12 +131,12 @@ export function AddMemberForm({ workspaceId }: AddMemberFormProps) {
         {isAdding ? (
           <>
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            Adding...
+            Sending Invitation...
           </>
         ) : (
           <>
             <Plus className="w-4 h-4 mr-2" />
-            Add Member
+            Send Invitation
           </>
         )}
       </Button>

@@ -15,7 +15,7 @@ import { editTemplate, handleGetWithId } from "@/actions/actions";
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
-import { PlusCircle, Send, X } from "lucide-react";
+import { PlusCircle, Send, X, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +24,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function page({ params }: { params: { id: string } }) {
   const [id, setId] = useState<string>();
@@ -50,6 +61,35 @@ export default function page({ params }: { params: { id: string } }) {
         description: "Email edited!",
       });
       router.back();
+    }
+  };
+
+  const deleteEmail = async () => {
+    try {
+      const response = await fetch(`/api/emails/${params.id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Email deleted",
+          description: "The email has been successfully deleted.",
+        });
+        router.push("/templates"); // Redirect to templates page
+      } else {
+        const error = await response.json();
+        toast({
+          title: "Error",
+          description: error.error || "Failed to delete email",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete email",
+        variant: "destructive",
+      });
     }
   };
 
@@ -115,11 +155,44 @@ export default function page({ params }: { params: { id: string } }) {
             />
           </div>
         </CardContent>
-        <CardFooter className="flex justify-end gap-2 p-6">
-          <Button variant="outline" onClick={() => router.back()}>
-            Cancel
-          </Button>
-          <Button onClick={saveChanges}>Save Changes</Button>
+        <CardFooter className="flex justify-between gap-2 p-6">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="outline"
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Email Template</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to delete this email template? This
+                  action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={deleteEmail}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => router.back()}>
+              Cancel
+            </Button>
+            <Button onClick={saveChanges}>Save Changes</Button>
+          </div>
+
           <Dialog>
             <DialogTrigger className="flex flex-row bg-white font-sans  rounded-lg">
               <Button className="flex items-center gap-2">

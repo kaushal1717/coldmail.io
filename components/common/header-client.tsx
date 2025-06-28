@@ -22,6 +22,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import { NotificationCenter } from "@/components/notifications/NotificationCenter";
 
 interface HeaderClientProps {
   session: any;
@@ -63,42 +64,45 @@ export function HeaderClient({ session: serverSession }: HeaderClientProps) {
             Login
           </Button>
         ) : (
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <div className="px-2 py-1 rounded-md flex items-center gap-2">
-                {session.user?.image ? (
-                  <Image
-                    className="rounded-full"
-                    src={session.user.image}
-                    height={30}
-                    width={30}
-                    alt="user"
-                  />
-                ) : (
-                  <div className="w-[30px] h-[30px] rounded-full bg-gray-300 flex items-center justify-center">
-                    <User2 size={16} />
-                  </div>
-                )}
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/profile">Profile</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/templates">Templates</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/workspaces">Workspaces</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={onGoogleSignOut}>
-                <LogOutIcon className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center gap-2">
+            <NotificationCenter />
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <div className="px-2 py-1 rounded-md flex items-center gap-2">
+                  {session.user?.image ? (
+                    <Image
+                      className="rounded-full"
+                      src={session.user.image}
+                      height={30}
+                      width={30}
+                      alt="user"
+                    />
+                  ) : (
+                    <div className="w-[30px] h-[30px] rounded-full bg-gray-300 flex items-center justify-center">
+                      <User2 size={16} />
+                    </div>
+                  )}
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/profile">Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/templates">Templates</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/workspaces">Workspaces</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onGoogleSignOut}>
+                  <LogOutIcon className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         )}
       </div>
 

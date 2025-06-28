@@ -4,10 +4,19 @@ import { prisma } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Mail, Plus } from "lucide-react";
+import {
+  Users,
+  Mail,
+  Plus,
+  FileText,
+  Trash2,
+  MoreHorizontal,
+} from "lucide-react";
 import Link from "next/link";
 import { WorkspaceMemberList } from "@/components/workspace/WorkspaceMemberList";
 import { AddMemberForm } from "@/components/workspace/AddMemberForm";
+import { WorkspaceReviews } from "@/components/workspace/WorkspaceReviews";
+import { WorkspaceEmailsTab } from "@/components/workspace/WorkspaceEmailsTab";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +24,24 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 async function getWorkspace(id: string) {
   try {
@@ -174,77 +201,110 @@ async function WorkspaceContent({ id }: { id: string }) {
                 Create Email
               </Button>
             </Link>
-            <Link href={`/workspaces/${workspace.id}/emails`}>
-              <Button variant="outline" size="sm" className="w-full">
-                View All Emails
-              </Button>
-            </Link>
           </CardContent>
         </Card>
       </div>
 
-      {/* Members Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Team Members</h2>
-            {canManageMembers && (
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button size="sm">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Member
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Add Team Member</DialogTitle>
-                  </DialogHeader>
-                  <AddMemberForm workspaceId={workspace.id} />
-                </DialogContent>
-              </Dialog>
-            )}
-          </div>
+      {/* Workspace Content */}
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="overview" className="flex items-center gap-2">
+            <Users className="w-4 h-4" />
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="reviews" className="flex items-center gap-2">
+            <FileText className="w-4 h-4" />
+            Reviews
+          </TabsTrigger>
+          <TabsTrigger value="emails" className="flex items-center gap-2">
+            <Mail className="w-4 h-4" />
+            Recent Emails
+          </TabsTrigger>
+        </TabsList>
 
-          <WorkspaceMemberList
-            members={workspace.members}
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold">Team Members</h2>
+                {canManageMembers && (
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button size="sm">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Member
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Add Team Member</DialogTitle>
+                      </DialogHeader>
+                      <AddMemberForm workspaceId={workspace.id} />
+                    </DialogContent>
+                  </Dialog>
+                )}
+              </div>
+
+              <WorkspaceMemberList
+                members={workspace.members}
+                workspaceId={workspace.id}
+                currentUserId={session?.user?.id || ""}
+                currentUserRole={currentUserRole}
+              />
+            </div>
+
+            {/* Recent Activity */}
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Recent Emails</h2>
+              <div className="space-y-3">
+                {workspace.emails.slice(0, 5).map((email: any) => (
+                  <Card key={email.id} className="p-3">
+                    <div className="space-y-1">
+                      <p className="font-medium text-sm">{email.subject}</p>
+                      <p className="text-xs text-muted-foreground">
+                        by {email.author.name}
+                      </p>
+                    </div>
+                  </Card>
+                ))}
+
+                {workspace.emails.length === 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    No emails created yet.
+                  </p>
+                )}
+
+                {workspace.emails.length > 0 && (
+                  <Link href={`/workspaces/${workspace.id}/emails`}>
+                    <Button variant="outline" size="sm" className="w-full mt-4">
+                      View All Emails
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Reviews Tab */}
+        <TabsContent value="reviews">
+          <WorkspaceReviews
             workspaceId={workspace.id}
+            currentUserId={session?.user?.id || ""}
+          />
+        </TabsContent>
+
+        {/* Emails Tab */}
+        <TabsContent value="emails">
+          <WorkspaceEmailsTab
+            workspaceId={workspace.id}
+            initialEmails={workspace.emails}
             currentUserId={session?.user?.id || ""}
             currentUserRole={currentUserRole}
           />
-        </div>
-
-        {/* Recent Activity */}
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Recent Emails</h2>
-          <div className="space-y-3">
-            {workspace.emails.slice(0, 5).map((email: any) => (
-              <Card key={email.id} className="p-3">
-                <div className="space-y-1">
-                  <p className="font-medium text-sm">{email.subject}</p>
-                  <p className="text-xs text-muted-foreground">
-                    by {email.author.name}
-                  </p>
-                </div>
-              </Card>
-            ))}
-
-            {workspace.emails.length === 0 && (
-              <p className="text-sm text-muted-foreground">
-                No emails created yet.
-              </p>
-            )}
-
-            {workspace.emails.length > 0 && (
-              <Link href={`/workspaces/${workspace.id}/emails`}>
-                <Button variant="outline" size="sm" className="w-full mt-4">
-                  View All Emails
-                </Button>
-              </Link>
-            )}
-          </div>
-        </div>
-      </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

@@ -29,6 +29,14 @@ model User {
   workspaceMemberships WorkspaceMember[]
   reviewRequests       ReviewRequest[]   @relation("ReviewRequester")
   assignedReviews      ReviewRequest[]   @relation("ReviewReviewer")
+  
+  // Notification relations
+  sentNotifications    Notification[]    @relation("NotificationSender")
+  receivedNotifications Notification[]   @relation("NotificationReceiver")
+  
+  // Workspace invitation relations
+  sentInvitations      WorkspaceInvitation[] @relation("InvitationSender")
+  receivedInvitations  WorkspaceInvitation[] @relation("InvitationReceiver")
 
   @@map("user")
 }
@@ -62,6 +70,7 @@ model Workspace {
   // Relations
   members     WorkspaceMember[]
   emails      Email[]
+  invitations WorkspaceInvitation[]
   
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
@@ -145,4 +154,57 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+}
+
+model Notification {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  type        String   // "review_request", "review_response", "workspace_invitation"
+  title       String
+  message     String
+  read        Boolean  @default(false)
+  
+  // Relations
+  senderId    String?
+  sender      User?    @relation("NotificationSender", fields: [senderId], references: [id])
+  receiverId  String
+  receiver    User     @relation("NotificationReceiver", fields: [receiverId], references: [id])
+  
+  // Related entities (optional, based on notification type)
+  reviewRequestId      String?  @db.ObjectId
+  workspaceInvitationId String? @db.ObjectId
+  workspaceId          String?  @db.ObjectId
+  emailId              String?  @db.ObjectId
+  
+  // Metadata
+  data        Json?    // Additional data for the notification
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("notification")
+}
+
+model WorkspaceInvitation {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  email       String
+  role        String    @default("member") // "member", "admin"
+  status      String    @default("pending") // "pending", "accepted", "rejected", "expired"
+  message     String?   // Optional message from inviter
+  
+  // Relations
+  workspaceId String    @db.ObjectId
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  inviterId   String
+  inviter     User      @relation("InvitationSender", fields: [inviterId], references: [id])
+  inviteeId   String?   // null if user doesn't exist yet
+  invitee     User?     @relation("InvitationReceiver", fields: [inviteeId], references: [id])
+  
+  // Expiration
+  expiresAt   DateTime
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@unique([email, workspaceId])
+  @@map("workspace_invitation")
 }
