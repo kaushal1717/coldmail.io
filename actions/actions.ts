@@ -216,9 +216,68 @@ export const handleGetWithUniqueId = async (uniqueIdentifier: string) => {
         uniqueIdentifier: uniqueIdentifier,
       },
     });
-
     return getEmail;
   } catch (error) {
     console.log(error);
+  }
+};
+
+// New server action for paginated templates
+export const getTemplatesPaginated = async (
+  page: number = 1,
+  itemsPerPage: number = 8,
+  category: string = "All"
+) => {
+  const session = await auth.api.getSession({ headers: await headers() });
+
+  if (!session?.user?.id) {
+    return { templates: [], totalCount: 0, totalPages: 0, currentPage: page };
+  }
+
+  try {
+    const skip = (page - 1) * itemsPerPage;
+
+    // Build where clause based on category
+    const whereClause: any = {
+      authorId: session.user.id,
+    };
+
+    if (category !== "All") {
+      whereClause.category = category;
+    }
+
+    // Get total count for pagination
+    const totalCount = await prisma.email.count({
+      where: whereClause,
+    });
+
+    // Get paginated templates
+    const templates = await prisma.email.findMany({
+      where: whereClause,
+      select: {
+        id: true,
+        content: true,
+        category: true,
+        subject: true,
+        uniqueIdentifier: true,
+      },
+      orderBy: {
+        id: "desc", // Most recent first
+      },
+      skip,
+      take: itemsPerPage,
+    });
+
+    const totalPages = Math.ceil(totalCount / itemsPerPage);
+
+    return {
+      templates,
+      totalCount,
+      totalPages,
+      currentPage: page,
+    };
+  } catch (error) {
+    console.log(error);
+    return { templates: [], totalCount: 0, totalPages: 0, currentPage: page };
   }
 };

@@ -20,7 +20,6 @@ import {
   useFieldArray,
   useForm,
 } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   FormControl,
@@ -42,37 +41,7 @@ import {
 import { handleSave } from "@/actions/actions";
 import clsx from "clsx";
 import { models } from "@/lib/constants";
-
-// Zod schema definition for form validation
-const emailFormSchema = z.object({
-  senderName: z.string().min(1, "This field is required"),
-  emailPurpose: z.enum([
-    "follow-up",
-    "job-application",
-    "to-ceo",
-    "referrals",
-    "product-promotion",
-  ]),
-  subject: z.string().min(1, "This field is required"),
-  emailTone: z.enum([
-    "formal",
-    "informal",
-    "enthusiastic",
-    "concise",
-    "friendly",
-  ]),
-  socialLinks: z
-    .array(
-      z.object({
-        platform: z.string().min(1, "This field is required"),
-        link: z.string().url("Invalid URL"),
-      })
-    )
-    .max(4, "You can add up to 4 social links"),
-  skills: z.string().min(1, "Skills/USP is required"),
-});
-
-export type emailFormType = z.infer<typeof emailFormSchema>;
+import { emailFormSchema, emailFormType } from "@/schemas";
 
 const Page: React.FC = () => {
   const [responseMessage, setResponseMessage] = useState<string>("");

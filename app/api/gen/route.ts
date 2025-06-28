@@ -1,5 +1,5 @@
 import { groq } from "@/lib/groq.helper";
-import { emailFormType } from "@/app/(client)/templates/new/page";
+import { emailFormType } from "@/schemas";
 
 export async function POST(request: Request) {
   const {
