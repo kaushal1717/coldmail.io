@@ -7,11 +7,28 @@ import { auth } from "@/lib/auth";
 export const handleSave = async (
   response: string,
   subject: string,
-  category: string
+  category: string,
+  workspaceId?: string
 ) => {
   const session = await auth.api.getSession({ headers: await headers() });
 
   try {
+    // If workspaceId is provided, verify user has access to this workspace
+    if (workspaceId) {
+      const memberCheck = await prisma.workspaceMember.findUnique({
+        where: {
+          userId_workspaceId: {
+            userId: session?.user?.id!,
+            workspaceId: workspaceId,
+          },
+        },
+      });
+
+      if (!memberCheck) {
+        throw new Error("You don't have access to this workspace");
+      }
+    }
+
     // Fetch user once
     const user = await prisma.user.findUnique({
       where: { id: session?.user?.id! },
@@ -45,6 +62,8 @@ export const handleSave = async (
           subject: subject,
           category: category,
           uniqueIdentifier: nanoid(),
+          workspaceId: workspaceId || null,
+          isPublic: workspaceId ? true : false,
         },
       }),
       prisma.user.update({
@@ -60,6 +79,7 @@ export const handleSave = async (
     return email;
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
 
@@ -216,9 +236,68 @@ export const handleGetWithUniqueId = async (uniqueIdentifier: string) => {
         uniqueIdentifier: uniqueIdentifier,
       },
     });
-
     return getEmail;
   } catch (error) {
     console.log(error);
+  }
+};
+
+// New server action for paginated templates
+export const getTemplatesPaginated = async (
+  page: number = 1,
+  itemsPerPage: number = 8,
+  category: string = "All"
+) => {
+  const session = await auth.api.getSession({ headers: await headers() });
+
+  if (!session?.user?.id) {
+    return { templates: [], totalCount: 0, totalPages: 0, currentPage: page };
+  }
+
+  try {
+    const skip = (page - 1) * itemsPerPage;
+
+    // Build where clause based on category
+    const whereClause: any = {
+      authorId: session.user.id,
+    };
+
+    if (category !== "All") {
+      whereClause.category = category;
+    }
+
+    // Get total count for pagination
+    const totalCount = await prisma.email.count({
+      where: whereClause,
+    });
+
+    // Get paginated templates
+    const templates = await prisma.email.findMany({
+      where: whereClause,
+      select: {
+        id: true,
+        content: true,
+        category: true,
+        subject: true,
+        uniqueIdentifier: true,
+      },
+      orderBy: {
+        id: "desc", // Most recent first
+      },
+      skip,
+      take: itemsPerPage,
+    });
+
+    const totalPages = Math.ceil(totalCount / itemsPerPage);
+
+    return {
+      templates,
+      totalCount,
+      totalPages,
+      currentPage: page,
+    };
+  } catch (error) {
+    console.log(error);
+    return { templates: [], totalCount: 0, totalPages: 0, currentPage: page };
   }
 };

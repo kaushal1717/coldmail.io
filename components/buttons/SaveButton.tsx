@@ -1,6 +1,4 @@
 "use client";
-
-import { signIn, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { handleSave } from "@/actions/actions";
 import { useToast } from "@/components/ui/use-toast";
@@ -16,14 +14,8 @@ const SaveButton = ({
   category: string;
 }) => {
   const { toast } = useToast();
-  const { data } = useSession();
   const router = useRouter();
   const save = async () => {
-    if (!data) {
-      signIn("google");
-      return;
-    }
-
     const email = await handleSave(content, subject, category);
     if (email) {
       toast({

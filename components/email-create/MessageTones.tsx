@@ -1,5 +1,5 @@
 import { useFormContext } from "react-hook-form";
-import { emailFormType } from "@/app/shared/EmailFormSchema";
+import { emailFormType } from "@/schemas";
 
 function MessageTonesSection() {
   const emailTones = ["Simple", "Shorter", "Longer", "Professional", "Casual"];

@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import { Plus, PlusCircle, Trash2, X, Loader2 } from "lucide-react";
 import {
   FormProvider,
@@ -20,7 +20,6 @@ import {
   useFieldArray,
   useForm,
 } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   FormControl,
@@ -30,6 +29,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/components/ui/use-toast";
+import { useSearchParams } from "next/navigation";
 
 import {
   Dialog,
@@ -42,40 +42,11 @@ import {
 import { handleSave } from "@/actions/actions";
 import clsx from "clsx";
 import { models } from "@/lib/constants";
+import { emailFormSchema, emailFormType } from "@/schemas";
+import { WorkspaceSelector } from "@/components/workspace/WorkspaceSelector";
 
-// Zod schema definition for form validation
-const emailFormSchema = z.object({
-  senderName: z.string().min(1, "This field is required"),
-  emailPurpose: z.enum([
-    "follow-up",
-    "job-application",
-    "to-ceo",
-    "referrals",
-    "product-promotion",
-  ]),
-  subject: z.string().min(1, "This field is required"),
-  emailTone: z.enum([
-    "formal",
-    "informal",
-    "enthusiastic",
-    "concise",
-    "friendly",
-  ]),
-  socialLinks: z
-    .array(
-      z.object({
-        platform: z.string().min(1, "This field is required"),
-        link: z.string().url("Invalid URL"),
-      })
-    )
-    .max(4, "You can add up to 4 social links"),
-  skills: z.string().min(1, "Skills/USP is required"),
-  model: z.string().min(1, "Model is required"),
-});
-
-export type emailFormType = z.infer<typeof emailFormSchema>;
-
-const Page: React.FC = () => {
+// Inner component that uses useSearchParams
+const TemplateForm: React.FC = () => {
   const [responseMessage, setResponseMessage] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [recipientEmail, setRecipientEmail] = useState<string[]>([]);
@@ -85,6 +56,12 @@ const Page: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [selectedModel, setSelectedModel] = useState(models[0].id);
+  const [selectedWorkspace, setSelectedWorkspace] = useState<
+    string | undefined
+  >();
+
+  const searchParams = useSearchParams();
+  const workspaceFromUrl = searchParams.get("workspace");
 
   const handleValueChange = (value: any) => {
     setSelectedValue(value);
@@ -193,14 +170,24 @@ const Page: React.FC = () => {
       const emailData: any = await handleSave(
         responseMessage,
         subject,
-        category
+        category,
+        selectedWorkspace
       );
       if (emailData) {
         toast({
           title: "Saved successfully!!",
-          description: "Your generated email template has been saved!",
+          description: selectedWorkspace
+            ? "Your email template has been saved to the workspace!"
+            : "Your personal email template has been saved!",
         });
       }
+    } catch (error) {
+      toast({
+        title: "Error saving",
+        description:
+          error instanceof Error ? error.message : "Failed to save email",
+        variant: "destructive",
+      });
     } finally {
       setIsSaving(false);
     }
@@ -216,6 +203,13 @@ const Page: React.FC = () => {
         <Card className="p-6 space-y-6 my-4">
           <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(onSubmit)}>
+              {/* Workspace Selector - NEW */}
+              <WorkspaceSelector
+                value={selectedWorkspace}
+                onValueChange={setSelectedWorkspace}
+                defaultWorkspaceId={workspaceFromUrl || undefined}
+              />
+
               {/* sender name */}
               <div className="space-y-2 my-4">
                 <Label className="text-lg" htmlFor="subject">
@@ -231,6 +225,7 @@ const Page: React.FC = () => {
                   </span>
                 )}
               </div>
+
               {/* Email Purpose Field */}
               <div className="my-4">
                 <FormField
@@ -272,7 +267,8 @@ const Page: React.FC = () => {
                   Subject
                 </Label>
                 <Input
-                  placeholder="Enter subject"
+                  id="subject"
+                  placeholder="Enter email subject"
                   {...methods.register("subject")}
                 />
                 {methods.formState.errors.subject && (
@@ -282,13 +278,14 @@ const Page: React.FC = () => {
                 )}
               </div>
 
-              {/* usp/skills */}
+              {/* Skills Field */}
               <div className="space-y-2 my-4">
-                <Label className="text-lg" htmlFor="subject">
-                  Individual Skills / Product Features
+                <Label className="text-lg" htmlFor="skills">
+                  Skills / Features (Optional)
                 </Label>
-                <Input
-                  placeholder="Enter skills/USP"
+                <Textarea
+                  id="skills"
+                  placeholder="List relevant skills or product features..."
                   {...methods.register("skills")}
                 />
                 {methods.formState.errors.skills && (
@@ -298,7 +295,7 @@ const Page: React.FC = () => {
                 )}
               </div>
 
-              {/* Email Tone Field */}
+              {/* Email Tone */}
               <div className="space-y-2 my-4">
                 <FormLabel className="text-lg">Email Tone</FormLabel>
                 <RadioGroup
@@ -338,70 +335,66 @@ const Page: React.FC = () => {
               </div>
 
               {/* Social Links Section */}
-              <div className="space-y-2 my-4">
-                <Label className="text-lg">Social Links</Label>
-                <div className="grid gap-4">
-                  {fields.map((field, index) => (
-                    <div
-                      key={field.id}
-                      className="grid grid-cols-[1fr_1fr_auto_auto] gap-2"
-                    >
+              <div className="space-y-4 my-4">
+                <div className="flex items-center justify-between">
+                  <Label className="text-lg">Social Links (Optional)</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => append({ platform: "", link: "" })}
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Link
+                  </Button>
+                </div>
+
+                {fields.map((field, index) => (
+                  <div key={field.id} className="flex gap-2 items-end">
+                    <div className="flex-1">
+                      <Label htmlFor={`platform-${index}`}>Platform</Label>
                       <Input
-                        placeholder="Platform"
+                        id={`platform-${index}`}
+                        placeholder="LinkedIn, Twitter, etc."
                         {...methods.register(`socialLinks.${index}.platform`)}
                       />
+                    </div>
+                    <div className="flex-1">
+                      <Label htmlFor={`link-${index}`}>URL</Label>
                       <Input
-                        placeholder="Link"
+                        id={`link-${index}`}
+                        placeholder="https://..."
                         {...methods.register(`socialLinks.${index}.link`)}
                       />
-                      <Button
-                        variant="outline"
-                        type="button"
-                        onClick={() => remove(index)}
-                      >
-                        <Trash2 className="h-5 w-5 text-red-500" />
-                      </Button>
-                      {methods.formState.errors.socialLinks?.[index]
-                        ?.platform && (
-                        <span className="text-red-500">
-                          {
-                            methods?.formState?.errors?.socialLinks?.[index]
-                              ?.platform?.message!
-                          }
-                        </span>
-                      )}
-                      {methods?.formState?.errors?.socialLinks?.[index]
-                        ?.link && (
-                        <span className="text-red-500">
-                          {
-                            methods?.formState?.errors?.socialLinks?.[index]
-                              ?.link?.message!
-                          }
-                        </span>
-                      )}
                     </div>
-                  ))}
+                    {fields.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => remove(index)}
+                        className="mb-0"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
 
-                  {fields.length < 4 && (
-                    <Button
-                      variant="outline"
-                      type="button"
-                      onClick={() => append({ platform: "", link: "" })}
-                    >
-                      <Plus className="w-5 h-5" />
-                    </Button>
-                  )}
-                </div>
+                {methods.formState.errors.socialLinks && (
+                  <span className="text-red-500">
+                    Please fill in both platform and link for all social links
+                  </span>
+                )}
               </div>
 
-              <div className="flex justify-end items-center gap-2">
-                <Select
-                  value={selectedModel}
-                  onValueChange={setSelectedModel}
-                  disabled={isLoading}
-                >
-                  <SelectTrigger className="w-[260px]">
-                    <SelectValue placeholder="Select model" />
+              {/* Model Selection */}
+              <div className="space-y-2 my-4">
+                <Label className="text-lg">AI Model</Label>
+                <Select value={selectedModel} onValueChange={setSelectedModel}>
+                  <SelectTrigger>
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {models.map((model) => (
@@ -411,119 +404,148 @@ const Page: React.FC = () => {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button
-                  type="submit"
-                  className="text-md bg-gray-300"
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <span className="flex items-center gap-2">
-                      <Loader2 className="animate-spin h-5 w-5 text-gray-600" />
-                      Generating...
-                    </span>
-                  ) : (
-                    "Generate"
-                  )}
-                </Button>
               </div>
+
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full flex items-center gap-2"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  "Generate Email"
+                )}
+              </Button>
             </form>
           </FormProvider>
         </Card>
-        <div className="flex flex-col gap-4">
-          <Textarea
-            className="h-[750px] resize-none my-4 rounded-lg"
-            placeholder="Your generated email will appear here..."
-            value={responseMessage}
-            onChange={(e) => {
-              if (responseMessage) {
-                setResponseMessage(e.target.value);
-              }
-            }}
-          />
-          <div className="flex justify-between">
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={handleCopy}
-                disabled={responseMessage ? false : true}
-              >
-                Copy
-              </Button>
-              <Button
-                variant="outline"
-                onClick={onSave}
-                disabled={responseMessage ? false : true || isSaving}
-              >
-                {isSaving ? (
-                  <span className="flex items-center gap-2">
-                    <Loader2 className="animate-spin h-4 w-4 text-gray-600" />
-                    Saving...
-                  </span>
-                ) : (
-                  "Save"
-                )}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setResponseMessage("")}
-                disabled={responseMessage ? false : true}
-              >
-                Clear
-              </Button>
-            </div>
-            <Dialog>
-              <DialogTrigger
-                className="flex flex-row bg-white text-black px-3 py-2  font-sans font-semibold rounded-lg"
-                disabled={responseMessage ? false : true}
-              >
-                Send
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add Emails</DialogTitle>
-                  <DialogDescription>
-                    <div className="flex mt-2 items-center gap-2">
-                      <Input
-                        placeholder="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                      />
-                      <PlusCircle
-                        size={30}
-                        color="white"
-                        className="cursor-pointer"
-                        onClick={addRecipient}
-                      />
-                    </div>
-                    <div className="flex flex-wrap gap-2 mt-3">
-                      {recipientEmail.length > 0 &&
-                        recipientEmail.map((email: string) => {
-                          return (
-                            <div key={email}>
-                              <div className="bg-slate-300 px-2 py-1 text-sm flex items-center justify-between gap-2 text-black rounded-lg">
-                                {email}
-                                <X
-                                  size={16}
-                                  onClick={() => removeRecipient(email)}
-                                />
-                              </div>
-                            </div>
-                          );
-                        })}
-                    </div>
-                    {recipientEmail.length > 0 && (
-                      <div className="mt-3 w-full">
-                        <Button onClick={openClientWithEmail}>Send</Button>
-                      </div>
+
+        <Card className="p-6 my-4">
+          <div className="space-y-4">
+            <Label className="text-lg font-semibold">Generated Email</Label>
+
+            {isLoading && (
+              <div className="flex items-center justify-center p-8">
+                <Loader2 className="w-8 h-8 animate-spin" />
+              </div>
+            )}
+
+            {responseMessage && !isLoading && (
+              <>
+                <Textarea
+                  value={responseMessage}
+                  onChange={(e) => setResponseMessage(e.target.value)}
+                  className="min-h-[calc(100vh-200px)] resize-none"
+                />
+
+                <div className="flex gap-2 flex-wrap">
+                  <Button
+                    onClick={handleCopy}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    Copy Email
+                  </Button>
+
+                  <Button
+                    onClick={onSave}
+                    disabled={isSaving}
+                    className="flex items-center gap-2"
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      "Save Template"
                     )}
-                  </DialogDescription>
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
+                  </Button>
+
+                  <Dialog>
+                    <DialogTrigger
+                      className="flex flex-row bg-white text-black px-3 py-2 font-sans font-semibold rounded-lg"
+                      disabled={!responseMessage}
+                    >
+                      Send
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Add Recipients</DialogTitle>
+                        <DialogDescription>
+                          <div className="flex mt-2 items-center gap-2">
+                            <Input
+                              placeholder="email"
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                            />
+                            <PlusCircle
+                              size={30}
+                              color="white"
+                              className="cursor-pointer"
+                              onClick={addRecipient}
+                            />
+                          </div>
+                          <div className="flex flex-wrap gap-2 mt-3">
+                            {recipientEmail.length > 0 &&
+                              recipientEmail.map((email: string) => {
+                                return (
+                                  <div key={email}>
+                                    <div className="bg-slate-300 px-2 py-1 text-sm flex items-center justify-between gap-2 text-black rounded-lg">
+                                      {email}
+                                      <X
+                                        size={16}
+                                        onClick={() => removeRecipient(email)}
+                                      />
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                          </div>
+                          {recipientEmail.length > 0 && (
+                            <div className="mt-3 w-full">
+                              <Button onClick={openClientWithEmail}>
+                                Send
+                              </Button>
+                            </div>
+                          )}
+                        </DialogDescription>
+                      </DialogHeader>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </>
+            )}
+
+            {!responseMessage && !isLoading && (
+              <div className="flex items-center justify-center p-8 text-muted-foreground">
+                Fill out the form and click "Generate Email" to create your
+                template
+              </div>
+            )}
           </div>
-        </div>
+        </Card>
       </div>
     </>
+  );
+};
+
+// Main Page component with Suspense boundary
+const Page: React.FC = () => {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center h-screen">
+          Loading...
+        </div>
+      }
+    >
+      <TemplateForm />
+    </Suspense>
   );
 };
 
