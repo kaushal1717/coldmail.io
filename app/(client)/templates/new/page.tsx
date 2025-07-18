@@ -55,6 +55,7 @@ const TemplateForm: React.FC = () => {
   const [selectedValue, setSelectedValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const [selectedModel, setSelectedModel] = useState(models[0].id);
   const [selectedWorkspace, setSelectedWorkspace] = useState<
     string | undefined
@@ -164,6 +165,53 @@ const TemplateForm: React.FC = () => {
     )}?subject=${subject}&body=${encodeURIComponent(responseMessage)}`;
   };
 
+  const sendEmailViaGmail = async () => {
+    if (recipientEmail.length === 0) {
+      toast({
+        title: "No recipients",
+        description: "Please add at least one recipient email.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsSending(true);
+    try {
+      const response = await fetch("/api/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: recipientEmail.join(","),
+          subject,
+          body: responseMessage,
+        }),
+      });
+      const result = await response.json();
+      if (response.ok && result.success) {
+        toast({
+          title: "Email sent!",
+          description: "Your email was sent via Gmail.",
+        });
+      } else {
+        toast({
+          title: "Send failed",
+          description: result.error || "Failed to send email via Gmail.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Send failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to send email via Gmail.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   const onSave = async () => {
     setIsSaving(true);
     try {
@@ -195,12 +243,12 @@ const TemplateForm: React.FC = () => {
 
   return (
     <>
-      <h2 className="text-2xl flex justify-center items-center sm:text-3xl font-bold sm:tracking-wide">
+      <h2 className='text-2xl flex justify-center items-center sm:text-3xl font-bold sm:tracking-wide'>
         Create new template
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
-        <Card className="p-6 space-y-6 my-4">
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-8 p-8'>
+        <Card className='p-6 space-y-6 my-4'>
           <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(onSubmit)}>
               {/* Workspace Selector - NEW */}
@@ -211,46 +259,46 @@ const TemplateForm: React.FC = () => {
               />
 
               {/* sender name */}
-              <div className="space-y-2 my-4">
-                <Label className="text-lg" htmlFor="subject">
+              <div className='space-y-2 my-4'>
+                <Label className='text-lg' htmlFor='subject'>
                   Individual / Organization Name
                 </Label>
                 <Input
-                  placeholder="Enter your name"
+                  placeholder='Enter your name'
                   {...methods.register("senderName")}
                 />
                 {methods.formState.errors.senderName && (
-                  <span className="text-red-500">
+                  <span className='text-red-500'>
                     {methods.formState.errors.senderName.message}
                   </span>
                 )}
               </div>
 
               {/* Email Purpose Field */}
-              <div className="my-4">
+              <div className='my-4'>
                 <FormField
                   control={methods.control}
-                  name="emailPurpose"
+                  name='emailPurpose'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-lg">Email Purpose</FormLabel>
+                      <FormLabel className='text-lg'>Email Purpose</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select email purpose" />
+                            <SelectValue placeholder='Select email purpose' />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="follow-up">Follow Up</SelectItem>
-                          <SelectItem value="job-application">
+                          <SelectItem value='follow-up'>Follow Up</SelectItem>
+                          <SelectItem value='job-application'>
                             Job Application
                           </SelectItem>
-                          <SelectItem value="to-ceo">To CEO</SelectItem>
-                          <SelectItem value="referrals">Referral</SelectItem>
-                          <SelectItem value="product-promotion">
+                          <SelectItem value='to-ceo'>To CEO</SelectItem>
+                          <SelectItem value='referrals'>Referral</SelectItem>
+                          <SelectItem value='product-promotion'>
                             Product Promotion
                           </SelectItem>
                         </SelectContent>
@@ -262,45 +310,45 @@ const TemplateForm: React.FC = () => {
               </div>
 
               {/* Subject Field */}
-              <div className="space-y-2 my-4">
-                <Label className="text-lg" htmlFor="subject">
+              <div className='space-y-2 my-4'>
+                <Label className='text-lg' htmlFor='subject'>
                   Subject
                 </Label>
                 <Input
-                  id="subject"
-                  placeholder="Enter email subject"
+                  id='subject'
+                  placeholder='Enter email subject'
                   {...methods.register("subject")}
                 />
                 {methods.formState.errors.subject && (
-                  <span className="text-red-500">
+                  <span className='text-red-500'>
                     {methods.formState.errors.subject.message}
                   </span>
                 )}
               </div>
 
               {/* Skills Field */}
-              <div className="space-y-2 my-4">
-                <Label className="text-lg" htmlFor="skills">
+              <div className='space-y-2 my-4'>
+                <Label className='text-lg' htmlFor='skills'>
                   Skills / Features (Optional)
                 </Label>
                 <Textarea
-                  id="skills"
-                  placeholder="List relevant skills or product features..."
+                  id='skills'
+                  placeholder='List relevant skills or product features...'
                   {...methods.register("skills")}
                 />
                 {methods.formState.errors.skills && (
-                  <span className="text-red-500">
+                  <span className='text-red-500'>
                     {methods.formState.errors.skills.message}
                   </span>
                 )}
               </div>
 
               {/* Email Tone */}
-              <div className="space-y-2 my-4">
-                <FormLabel className="text-lg">Email Tone</FormLabel>
+              <div className='space-y-2 my-4'>
+                <FormLabel className='text-lg'>Email Tone</FormLabel>
                 <RadioGroup
                   onValueChange={handleValueChange}
-                  className=" flex flex-wrap "
+                  className=' flex flex-wrap '
                 >
                   {[
                     "formal",
@@ -309,11 +357,11 @@ const TemplateForm: React.FC = () => {
                     "concise",
                     "friendly",
                   ].map((tone) => (
-                    <div key={tone} className="">
+                    <div key={tone} className=''>
                       <RadioGroupItem
                         value={tone}
                         id={tone}
-                        className="hidden"
+                        className='hidden'
                       />
                       <Label
                         htmlFor={tone}
@@ -328,70 +376,70 @@ const TemplateForm: React.FC = () => {
                   ))}
                 </RadioGroup>
                 {methods.formState.errors.emailTone && (
-                  <span className="text-red-500">
+                  <span className='text-red-500'>
                     {methods.formState.errors.emailTone.message}
                   </span>
                 )}
               </div>
 
               {/* Social Links Section */}
-              <div className="space-y-4 my-4">
-                <div className="flex items-center justify-between">
-                  <Label className="text-lg">Social Links (Optional)</Label>
+              <div className='space-y-4 my-4'>
+                <div className='flex items-center justify-between'>
+                  <Label className='text-lg'>Social Links (Optional)</Label>
                   <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
+                    type='button'
+                    variant='outline'
+                    size='sm'
                     onClick={() => append({ platform: "", link: "" })}
-                    className="flex items-center gap-2"
+                    className='flex items-center gap-2'
                   >
-                    <Plus className="w-4 h-4" />
+                    <Plus className='w-4 h-4' />
                     Add Link
                   </Button>
                 </div>
 
                 {fields.map((field, index) => (
-                  <div key={field.id} className="flex gap-2 items-end">
-                    <div className="flex-1">
+                  <div key={field.id} className='flex gap-2 items-end'>
+                    <div className='flex-1'>
                       <Label htmlFor={`platform-${index}`}>Platform</Label>
                       <Input
                         id={`platform-${index}`}
-                        placeholder="LinkedIn, Twitter, etc."
+                        placeholder='LinkedIn, Twitter, etc.'
                         {...methods.register(`socialLinks.${index}.platform`)}
                       />
                     </div>
-                    <div className="flex-1">
+                    <div className='flex-1'>
                       <Label htmlFor={`link-${index}`}>URL</Label>
                       <Input
                         id={`link-${index}`}
-                        placeholder="https://..."
+                        placeholder='https://...'
                         {...methods.register(`socialLinks.${index}.link`)}
                       />
                     </div>
                     {fields.length > 1 && (
                       <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
+                        type='button'
+                        variant='outline'
+                        size='sm'
                         onClick={() => remove(index)}
-                        className="mb-0"
+                        className='mb-0'
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className='w-4 h-4' />
                       </Button>
                     )}
                   </div>
                 ))}
 
                 {methods.formState.errors.socialLinks && (
-                  <span className="text-red-500">
+                  <span className='text-red-500'>
                     Please fill in both platform and link for all social links
                   </span>
                 )}
               </div>
 
               {/* Model Selection */}
-              <div className="space-y-2 my-4">
-                <Label className="text-lg">AI Model</Label>
+              <div className='space-y-2 my-4'>
+                <Label className='text-lg'>AI Model</Label>
                 <Select value={selectedModel} onValueChange={setSelectedModel}>
                   <SelectTrigger>
                     <SelectValue />
@@ -407,13 +455,13 @@ const TemplateForm: React.FC = () => {
               </div>
 
               <Button
-                type="submit"
+                type='submit'
                 disabled={isLoading}
-                className="w-full flex items-center gap-2"
+                className='w-full flex items-center gap-2'
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Loader2 className='w-4 h-4 animate-spin' />
                     Generating...
                   </>
                 ) : (
@@ -424,13 +472,13 @@ const TemplateForm: React.FC = () => {
           </FormProvider>
         </Card>
 
-        <Card className="p-6 my-4">
-          <div className="space-y-4">
-            <Label className="text-lg font-semibold">Generated Email</Label>
+        <Card className='p-6 my-4'>
+          <div className='space-y-4'>
+            <Label className='text-lg font-semibold'>Generated Email</Label>
 
             {isLoading && (
-              <div className="flex items-center justify-center p-8">
-                <Loader2 className="w-8 h-8 animate-spin" />
+              <div className='flex items-center justify-center p-8'>
+                <Loader2 className='w-8 h-8 animate-spin' />
               </div>
             )}
 
@@ -439,14 +487,14 @@ const TemplateForm: React.FC = () => {
                 <Textarea
                   value={responseMessage}
                   onChange={(e) => setResponseMessage(e.target.value)}
-                  className="min-h-[calc(100vh-200px)] resize-none"
+                  className='min-h-[calc(100vh-200px)] resize-none'
                 />
 
-                <div className="flex gap-2 flex-wrap">
+                <div className='flex gap-2 flex-wrap'>
                   <Button
                     onClick={handleCopy}
-                    variant="outline"
-                    className="flex items-center gap-2"
+                    variant='outline'
+                    className='flex items-center gap-2'
                   >
                     Copy Email
                   </Button>
@@ -454,11 +502,11 @@ const TemplateForm: React.FC = () => {
                   <Button
                     onClick={onSave}
                     disabled={isSaving}
-                    className="flex items-center gap-2"
+                    className='flex items-center gap-2'
                   >
                     {isSaving ? (
                       <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <Loader2 className='w-4 h-4 animate-spin' />
                         Saving...
                       </>
                     ) : (
@@ -468,7 +516,7 @@ const TemplateForm: React.FC = () => {
 
                   <Dialog>
                     <DialogTrigger
-                      className="flex flex-row bg-white text-black px-3 py-2 font-sans font-semibold rounded-lg"
+                      className='flex flex-row bg-white text-black px-3 py-2 font-sans font-semibold rounded-lg'
                       disabled={!responseMessage}
                     >
                       Send
@@ -477,25 +525,25 @@ const TemplateForm: React.FC = () => {
                       <DialogHeader>
                         <DialogTitle>Add Recipients</DialogTitle>
                         <DialogDescription>
-                          <div className="flex mt-2 items-center gap-2">
+                          <div className='flex mt-2 items-center gap-2'>
                             <Input
-                              placeholder="email"
+                              placeholder='email'
                               value={email}
                               onChange={(e) => setEmail(e.target.value)}
                             />
                             <PlusCircle
                               size={30}
-                              color="white"
-                              className="cursor-pointer"
+                              color='white'
+                              className='cursor-pointer'
                               onClick={addRecipient}
                             />
                           </div>
-                          <div className="flex flex-wrap gap-2 mt-3">
+                          <div className='flex flex-wrap gap-2 mt-3'>
                             {recipientEmail.length > 0 &&
                               recipientEmail.map((email: string) => {
                                 return (
                                   <div key={email}>
-                                    <div className="bg-slate-300 px-2 py-1 text-sm flex items-center justify-between gap-2 text-black rounded-lg">
+                                    <div className='bg-slate-300 px-2 py-1 text-sm flex items-center justify-between gap-2 text-black rounded-lg'>
                                       {email}
                                       <X
                                         size={16}
@@ -507,9 +555,22 @@ const TemplateForm: React.FC = () => {
                               })}
                           </div>
                           {recipientEmail.length > 0 && (
-                            <div className="mt-3 w-full">
-                              <Button onClick={openClientWithEmail}>
-                                Send
+                            <div className='mt-3 w-full flex gap-2'>
+                              <Button
+                                onClick={sendEmailViaGmail}
+                                disabled={isSending}
+                              >
+                                {isSending ? (
+                                  <Loader2 className='w-4 h-4 animate-spin' />
+                                ) : (
+                                  "Send via Gmail"
+                                )}
+                              </Button>
+                              <Button
+                                onClick={openClientWithEmail}
+                                variant='outline'
+                              >
+                                Send via Email Client
                               </Button>
                             </div>
                           )}
@@ -522,7 +583,7 @@ const TemplateForm: React.FC = () => {
             )}
 
             {!responseMessage && !isLoading && (
-              <div className="flex items-center justify-center p-8 text-muted-foreground">
+              <div className='flex items-center justify-center p-8 text-muted-foreground'>
                 Fill out the form and click "Generate Email" to create your
                 template
               </div>
@@ -539,7 +600,7 @@ const Page: React.FC = () => {
   return (
     <Suspense
       fallback={
-        <div className="flex justify-center items-center h-screen">
+        <div className='flex justify-center items-center h-screen'>
           Loading...
         </div>
       }

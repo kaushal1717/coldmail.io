@@ -15,7 +15,7 @@ import { editTemplate, handleGetWithId } from "@/actions/actions";
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
-import { PlusCircle, Send, X, Trash2 } from "lucide-react";
+import { PlusCircle, Send, X, Trash2, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -44,6 +44,7 @@ export default function page({ params }: { params: { id: string } }) {
   const [email, setEmail] = useState<string>("");
   const router = useRouter();
   const { toast } = useToast();
+  const [isSending, setIsSending] = useState(false);
   const fetchEmail = async () => {
     const fetchedEmail = await handleGetWithId(params.id);
     if (fetchedEmail) {
@@ -121,48 +122,95 @@ export default function page({ params }: { params: { id: string } }) {
       ","
     )}?subject=${subject}&body=${encodeURIComponent(content)}`;
   };
+
+  const sendEmailViaGmail = async () => {
+    if (recipientEmail.length === 0) {
+      toast({
+        title: "No recipients",
+        description: "Please add at least one recipient email.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsSending(true);
+    try {
+      const response = await fetch("/api/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: recipientEmail.join(","),
+          subject,
+          body: content,
+        }),
+      });
+      const result = await response.json();
+      if (response.ok && result.success) {
+        toast({
+          title: "Email sent!",
+          description: "Your email was sent via Gmail.",
+        });
+      } else {
+        toast({
+          title: "Send failed",
+          description: result.error || "Failed to send email via Gmail.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Send failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to send email via Gmail.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSending(false);
+    }
+  };
   useEffect(() => {
     fetchEmail();
   }, []);
   return (
-    <div className="flex items-center justify-center bg-muted m-4">
-      <Card className="w-full h-full max-w-none border-none">
+    <div className='flex items-center justify-center bg-muted m-4'>
+      <Card className='w-full h-full max-w-none border-none'>
         <CardHeader>
           <CardTitle>Edit Template</CardTitle>
           <CardDescription>
             Update the subject and email content for this template.
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex-1 space-y-4 p-6">
-          <div className="grid gap-3">
-            <Label htmlFor="subject">Subject</Label>
+        <CardContent className='flex-1 space-y-4 p-6'>
+          <div className='grid gap-3'>
+            <Label htmlFor='subject'>Subject</Label>
             <Input
-              id="subject"
-              type="text"
-              placeholder="Enter subject"
+              id='subject'
+              type='text'
+              placeholder='Enter subject'
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
             />
           </div>
-          <div className="grid gap-3">
-            <Label htmlFor="email">Email Content</Label>
+          <div className='grid gap-3'>
+            <Label htmlFor='email'>Email Content</Label>
             <Textarea
-              id="email"
-              placeholder="Enter email content"
-              className="flex-1 min-h-[400px]"
+              id='email'
+              placeholder='Enter email content'
+              className='flex-1 min-h-[400px]'
               value={content}
               onChange={(e) => setContent(e.target.value)}
             />
           </div>
         </CardContent>
-        <CardFooter className="flex justify-between gap-2 p-6">
+        <CardFooter className='flex justify-between gap-2 p-6'>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button
-                variant="outline"
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                variant='outline'
+                className='text-red-600 hover:text-red-700 hover:bg-red-50'
               >
-                <Trash2 className="w-4 h-4 mr-2" />
+                <Trash2 className='w-4 h-4 mr-2' />
                 Delete
               </Button>
             </AlertDialogTrigger>
@@ -178,7 +226,7 @@ export default function page({ params }: { params: { id: string } }) {
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={deleteEmail}
-                  className="bg-red-600 hover:bg-red-700"
+                  className='bg-red-600 hover:bg-red-700'
                 >
                   Delete
                 </AlertDialogAction>
@@ -186,16 +234,16 @@ export default function page({ params }: { params: { id: string } }) {
             </AlertDialogContent>
           </AlertDialog>
 
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => router.back()}>
+          <div className='flex gap-2'>
+            <Button variant='outline' onClick={() => router.back()}>
               Cancel
             </Button>
             <Button onClick={saveChanges}>Save Changes</Button>
           </div>
 
           <Dialog>
-            <DialogTrigger className="flex flex-row bg-white font-sans  rounded-lg">
-              <Button className="flex items-center gap-2">
+            <DialogTrigger className='flex flex-row bg-white font-sans  rounded-lg'>
+              <Button className='flex items-center gap-2'>
                 Send
                 <Send size={14} />
               </Button>
@@ -204,25 +252,25 @@ export default function page({ params }: { params: { id: string } }) {
               <DialogHeader>
                 <DialogTitle>Add Emails</DialogTitle>
                 <DialogDescription>
-                  <div className="flex mt-2 items-center gap-2">
+                  <div className='flex mt-2 items-center gap-2'>
                     <Input
-                      placeholder="email"
+                      placeholder='email'
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
                     <PlusCircle
                       size={30}
-                      color="white"
-                      className="cursor-pointer"
+                      color='white'
+                      className='cursor-pointer'
                       onClick={addRecipient}
                     />
                   </div>
-                  <div className="flex flex-wrap gap-2 mt-3">
+                  <div className='flex flex-wrap gap-2 mt-3'>
                     {recipientEmail.length > 0 &&
                       recipientEmail.map((email: string) => {
                         return (
                           <div key={email}>
-                            <div className="bg-slate-300 px-2 py-1 text-sm flex items-center justify-between gap-2 text-black rounded-lg">
+                            <div className='bg-slate-300 px-2 py-1 text-sm flex items-center justify-between gap-2 text-black rounded-lg'>
                               {email}
                               <X
                                 size={16}
@@ -234,8 +282,17 @@ export default function page({ params }: { params: { id: string } }) {
                       })}
                   </div>
                   {recipientEmail.length > 0 && (
-                    <div className="mt-3 w-full">
-                      <Button onClick={openClientWithEmail}>Send</Button>
+                    <div className='mt-3 w-full flex gap-2'>
+                      <Button onClick={sendEmailViaGmail} disabled={isSending}>
+                        {isSending ? (
+                          <Loader2 className='w-4 h-4 animate-spin' />
+                        ) : (
+                          "Send via Gmail"
+                        )}
+                      </Button>
+                      <Button onClick={openClientWithEmail} variant='outline'>
+                        Send via Email Client
+                      </Button>
                     </div>
                   )}
                 </DialogDescription>
