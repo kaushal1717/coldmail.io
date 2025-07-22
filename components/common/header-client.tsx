@@ -5,7 +5,6 @@ import { LogOutIcon, User2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { authClient } from "@/lib/authClient";
-import { useEffect, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,10 +22,11 @@ import {
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
+import { useRouter } from "next/navigation";
 
 export function HeaderClient() {
   const { data: session } = authClient.useSession();
-
+  const router = useRouter();
   const onGoogleSignIn = () => {
     return authClient.signIn.social({ provider: "google" });
   };
@@ -34,6 +34,7 @@ export function HeaderClient() {
   const onGoogleSignOut = async () => {
     try {
       await authClient.signOut();
+      router.replace("/");
     } catch (error) {
       console.error("Error signing out:", error);
     }

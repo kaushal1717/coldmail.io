@@ -1,20 +1,27 @@
+import { betterFetch } from "@better-fetch/fetch";
+import type { auth } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionCookie } from "better-auth/cookies";
-import { publicRoutes, protectedRoutes, DEFAULT_REDIRECT } from "@/lib/routes";
+
+type Session = typeof auth.$Infer.Session;
 
 export async function middleware(request: NextRequest) {
-  const { nextUrl } = request;
-  const sessionCookie = getSessionCookie(request);
-  const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
-  const isProtectedRoute = protectedRoutes.includes(nextUrl.pathname);
+  const { data: session } = await betterFetch<Session>(
+    "/api/auth/get-session",
+    {
+      baseURL: request.nextUrl.origin,
+      headers: {
+        cookie: request.headers.get("cookie") || "",
+      },
+    }
+  );
 
-  if (isProtectedRoute && !sessionCookie) {
-    return NextResponse.redirect(new URL(DEFAULT_REDIRECT, nextUrl));
+  if (!session) {
+    return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/templates", "/workspaces", "/pricing", "/profile"],
 };
