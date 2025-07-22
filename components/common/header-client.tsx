@@ -24,19 +24,8 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
 
-interface HeaderClientProps {
-  session: any;
-}
-
-export function HeaderClient({ session: serverSession }: HeaderClientProps) {
-  const [mounted, setMounted] = useState(false);
-
-  const { data: authSession } = authClient.useSession();
-  const session = mounted ? authSession : serverSession;
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+export function HeaderClient() {
+  const { data: session } = authClient.useSession();
 
   const onGoogleSignIn = () => {
     return authClient.signIn.social({ provider: "google" });
@@ -49,10 +38,6 @@ export function HeaderClient({ session: serverSession }: HeaderClientProps) {
       console.error("Error signing out:", error);
     }
   };
-
-  if (!mounted) {
-    return <div className="w-10 h-10 rounded-full bg-gray-200" />;
-  }
 
   return (
     <>
