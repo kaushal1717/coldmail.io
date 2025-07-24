@@ -25,7 +25,7 @@ import { NotificationCenter } from "@/components/notifications/NotificationCente
 import { useRouter } from "next/navigation";
 
 export function HeaderClient() {
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
   const onGoogleSignIn = () => {
     return authClient.signIn.social({ provider: "google" });
@@ -44,7 +44,7 @@ export function HeaderClient() {
     <>
       {/* Desktop view - hidden on mobile */}
       <div className="hidden md:block">
-        {!session ? (
+        {isPending ? null : !session ? (
           <Button className="flex items-center gap-2" onClick={onGoogleSignIn}>
             <User2 size={16} />
             Login
@@ -137,7 +137,7 @@ export function HeaderClient() {
                 Pricing
               </Link>
 
-              {!session ? (
+              {isPending ? null : !session ? (
                 <Button
                   className="flex items-center gap-2 w-full"
                   onClick={onGoogleSignIn}
@@ -172,14 +172,16 @@ export function HeaderClient() {
                 </div>
               )}
 
-              {session && (
-                <Button onClick={onGoogleSignOut} className="w-full mt-4">
-                  Logout{" "}
-                  <span className="ml-3">
-                    <LogOutIcon size={20} />
-                  </span>
-                </Button>
-              )}
+              {isPending
+                ? null
+                : session && (
+                    <Button onClick={onGoogleSignOut} className="w-full mt-4">
+                      Logout{" "}
+                      <span className="ml-3">
+                        <LogOutIcon size={20} />
+                      </span>
+                    </Button>
+                  )}
             </nav>
           </SheetContent>
         </Sheet>
