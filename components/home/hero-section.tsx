@@ -1,13 +1,11 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { LoginButton } from "@/components/auth/login-button";
-import { Suspense } from "react";
+import { authClient } from "@/lib/authClient";
 
-interface HeroSectionProps {
-  session: any;
-}
-
-export function HeroSection({ session }: HeroSectionProps) {
+export function HeroSection() {
+  const { data: session, isPending } = authClient.useSession();
   return (
     <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
       <div className="container px-4 md:px-6">
@@ -18,26 +16,25 @@ export function HeroSection({ session }: HeroSectionProps) {
             </h1>
             <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
               Generate highly personalized email templates for your cold
-              outreach campaigns. Save, copy, and send your emails directly
-              from our app, with options to edit and delete—all in one place.
+              outreach campaigns. Save, copy, and send your emails directly from
+              our app, with options to edit and delete—all in one place.
             </p>
           </div>
 
-          {/* Conditionally render based on session */}
-          <Suspense fallback={<div className="h-10"></div>}>
-            {session ? (
-              <div className="space-x-4">
-                <Button
-                  className="text-lg dark:hover:bg-gray-800 dark:hover:text-gray-50"
-                  asChild
-                >
-                  <Link href="/templates">Get Started</Link>
-                </Button>
-              </div>
-            ) : (
-              <LoginButton />
-            )}
-          </Suspense>
+          {isPending ? (
+            <div className="h-10" />
+          ) : session ? (
+            <div className="space-x-4">
+              <Button
+                className="text-lg dark:hover:bg-gray-800 dark:hover:text-gray-50"
+                asChild
+              >
+                <Link href="/templates">Get Started</Link>
+              </Button>
+            </div>
+          ) : (
+            <LoginButton />
+          )}
         </div>
       </div>
     </section>

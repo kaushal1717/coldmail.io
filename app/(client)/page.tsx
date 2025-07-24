@@ -1,25 +1,15 @@
-import { getServerSession } from "@/lib/get-server-session";
 import { HeroSection } from "@/components/home/hero-section";
 import { FeaturesSection } from "@/components/home/features-section";
 import { FeatureCardsSection } from "@/components/home/feature-cards-section";
-import { Suspense } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default async function Home() {
-  const session = await getServerSession();
   return (
-    <>
-      <Suspense
-        fallback={
-          <div className="min-h-[50vh] flex items-center justify-center">
-            Loading...
-          </div>
-        }
-      >
-        <HeroSection session={session} />
-      </Suspense>
+    <div>
+      <HeroSection />
+
       <FeaturesSection />
       <FeatureCardsSection />
       <section className="w-full py-12 md:py-24 lg:py-32 border-t">
@@ -51,6 +41,6 @@ export default async function Home() {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }
